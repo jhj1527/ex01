@@ -19,7 +19,7 @@ public class CustomUserDetailService implements UserDetailsService {
 	private MemberService memberService;
 	
 	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, ApiException {
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		log.info("username ▶▶▶▶▶▶▶▶▶▶▶▶▶▶▶▶ " + username);
 		
 		MemberDto dto = memberService.findById(username);
