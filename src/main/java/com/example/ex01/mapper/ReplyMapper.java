@@ -3,11 +3,13 @@ package com.example.ex01.mapper;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.example.ex01.dto.PageDto;
 import com.example.ex01.dto.ReplyDto;
 
+@Mapper
 public interface ReplyMapper {
 	// mybatis에서 두 개 이상 파라미터 전달시 3가지 방법
 	// 1.별도의 객체로 구현
