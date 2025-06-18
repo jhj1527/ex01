@@ -19,6 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -260,21 +261,32 @@ public class SecurityConfig {
 		};
     }
 	
-	@Bean
-	public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+//	@Bean
+//	public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
 //		AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
 //		authenticationManagerBuilder.userDetailsService(CustomUserService()).passwordEncoder(passwordEncoder());
 //		AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
 //		
 //		return authenticationManager;
+//		
+//		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+//		authenticationProvider.setUserDetailsService(CustomUserService());
+//		authenticationProvider.setPasswordEncoder(passwordEncoder());
+//		authenticationProvider.setHideUserNotFoundExceptions(false);
+//		
+//		ProviderManager providerManager = new ProviderManager(authenticationProvider);
+//		return providerManager;
+//	}
+	
+	@Bean
+	public DaoAuthenticationProvider daoAuthenticationProvider() throws Exception {
+		DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+		daoAuthenticationProvider.setUserDetailsService(CustomUserService());
+		daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+//		daoAuthenticationProvider.setHideUserNotFoundExceptions(false);
 		
-		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-		authenticationProvider.setUserDetailsService(CustomUserService());
-		authenticationProvider.setPasswordEncoder(passwordEncoder());
-		authenticationProvider.setHideUserNotFoundExceptions(false);
-		
-		ProviderManager providerManager = new ProviderManager(authenticationProvider);
-		return providerManager;
+		ProviderManager providerManager = new ProviderManager(daoAuthenticationProvider);
+		return daoAuthenticationProvider;
 	}
 	
 	@Bean
