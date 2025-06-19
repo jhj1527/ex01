@@ -52,9 +52,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
-@EnableWebSecurity //(debug = true)
+@EnableWebSecurity
 public class SecurityConfig {
-	
 	@Bean
 	public WebSecurityCustomizer configure() {
 		return web -> web.ignoring()
@@ -97,7 +96,7 @@ public class SecurityConfig {
 		http.authorizeHttpRequests(auth -> auth
 				.requestMatchers(HttpMethod.OPTIONS, "/**")
 				.permitAll()
-				.requestMatchers("/api/board/**", "/api/member/insert", "/api/reply/**")
+				.requestMatchers("/api/board/**", "/api/member/**", "/api/reply/**", "/api/file/**")
 				.permitAll()
 				.anyRequest()
 				.authenticated()
