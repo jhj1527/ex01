@@ -6,15 +6,13 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
-import org.mybatis.spring.boot.autoconfigure.MybatisProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -26,8 +24,20 @@ import com.zaxxer.hikari.HikariDataSource;
 //@PropertySource("classpath:/application.properties")
 @EnableTransactionManagement
 public class DatabaseConfig {
+	
+	@Value("${mybatis.mapper-locations}")
+	private String mapperLocation;
+	@Value("${mybatis.config-location}")
+	private String configLocation;
+	@Value("${mybatis.type-aliases-package}")
+	private String typeAlias;
+	
+	private final ApplicationContext applicationContext;
+	
 	@Autowired
-	ApplicationContext applicationContext;
+	public DatabaseConfig(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
+	}
 
 	@Bean
 	@ConfigurationProperties(prefix = "spring.datasource.hikari")
@@ -39,12 +49,6 @@ public class DatabaseConfig {
 //		hikariConfig.setUsername("board");
 //		hikariConfig.setPassword("1234");
 		
-//		hikariConfig.setDriverClassName("oracle.jdbc.driver.OracleDriver");
-//		hikariConfig.setJdbcUrl("jdbc:oracle:thin:@localhost:1521:xe");
-//		hikariConfig.setUsername("board");
-//		hikariConfig.setPassword("1234");
-//		hikariConfig.setAutoCommit(false);
-		
 		return hikariConfig;
 	}
 	
@@ -54,12 +58,21 @@ public class DatabaseConfig {
 	}
 	
 	@Bean
+	@ConfigurationProperties(prefix = "mybatis.configuration")
+	public org.apache.ibatis.session.Configuration configuration() {
+		return new org.apache.ibatis.session.Configuration();
+	}
+	
+	@Bean
 	public SqlSessionFactory sqlSessionFactory() throws Exception {
 		SqlSessionFactoryBean sqlSessionFactory = new SqlSessionFactoryBean();
 		
 		sqlSessionFactory.setDataSource(dataSource());
-		sqlSessionFactory.setConfigLocation(applicationContext.getResource("classpath:/mybatis-config.xml"));
-		sqlSessionFactory.setMapperLocations(applicationContext.getResources("classpath:/mapper/*.xml"));
+		sqlSessionFactory.setMapperLocations(applicationContext.getResources(mapperLocation));
+		sqlSessionFactory.setConfigLocation(applicationContext.getResource(configLocation));
+//		sqlSessionFactory.setTypeAliasesPackage(typeAlias);
+//		sqlSessionFactory.setConfiguration(configuration());
+		
 		return sqlSessionFactory.getObject(); 
 	}
 	
@@ -67,7 +80,6 @@ public class DatabaseConfig {
 	public SqlSessionTemplate sqlSessionTemplate() throws Exception {
 		return new SqlSessionTemplate(sqlSessionFactory());
 	}
-	
 	
 	@Bean
 	public DataSourceTransactionManager dataSourceTransactionManager() {

@@ -19,6 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -51,9 +52,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
-@EnableWebSecurity //(debug = true)
+@EnableWebSecurity
 public class SecurityConfig {
-	
 	@Bean
 	public WebSecurityCustomizer configure() {
 		return web -> web.ignoring()
@@ -96,7 +96,7 @@ public class SecurityConfig {
 		http.authorizeHttpRequests(auth -> auth
 				.requestMatchers(HttpMethod.OPTIONS, "/**")
 				.permitAll()
-				.requestMatchers("/api/board/**", "/api/member/insert", "/api/reply/**")
+				.requestMatchers("/api/board/**", "/api/member/**", "/api/reply/**", "/api/file/**", "/api/item/**")
 				.permitAll()
 				.anyRequest()
 				.authenticated()
@@ -260,21 +260,32 @@ public class SecurityConfig {
 		};
     }
 	
-	@Bean
-	public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+//	@Bean
+//	public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
 //		AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
 //		authenticationManagerBuilder.userDetailsService(CustomUserService()).passwordEncoder(passwordEncoder());
 //		AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
 //		
 //		return authenticationManager;
+//		
+//		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+//		authenticationProvider.setUserDetailsService(CustomUserService());
+//		authenticationProvider.setPasswordEncoder(passwordEncoder());
+//		authenticationProvider.setHideUserNotFoundExceptions(false);
+//		
+//		ProviderManager providerManager = new ProviderManager(authenticationProvider);
+//		return providerManager;
+//	}
+	
+	@Bean
+	public DaoAuthenticationProvider daoAuthenticationProvider() throws Exception {
+		DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+		daoAuthenticationProvider.setUserDetailsService(CustomUserService());
+		daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+//		daoAuthenticationProvider.setHideUserNotFoundExceptions(false);
 		
-		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-		authenticationProvider.setUserDetailsService(CustomUserService());
-		authenticationProvider.setPasswordEncoder(passwordEncoder());
-		authenticationProvider.setHideUserNotFoundExceptions(false);
-		
-		ProviderManager providerManager = new ProviderManager(authenticationProvider);
-		return providerManager;
+		ProviderManager providerManager = new ProviderManager(daoAuthenticationProvider);
+		return daoAuthenticationProvider;
 	}
 	
 	@Bean

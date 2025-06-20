@@ -51,37 +51,29 @@
 		</selectKey>
 	
 		<![CDATA[
-			insert into board(bno, title, content, id, regDate) values(#{bno}, #{title}, #{content}, #{id}, sysdate)
+			insert into board(bno, title, content, id, regDate) 
+			values(#{bno}, #{title, jdbcType = VARCHAR}, #{content, jdbcType = VARCHAR}, #{id}, sysdate)
         ]]>
 	</insert>
 	
     <update id="update">
-		<!-- update board set
+		<![CDATA[
+            update board set
+        ]]>
+		
 		<if test='title != null and !title.equals("")'>
 			<![CDATA[
 				title = #{title, jdbcType = VARCHAR},
 			]]>
 		</if>
-		<if test='content != null and !content.equals("")'>
-			<![CDATA[
-				content = #{content, jdbcType = VARCHAR},
-			]]>
-		</if>
-		
-		title = #{title},
-		content = #{content},
-		regdate = sysdate
-		where 1 = 1
-		and id = #{id} -->
 		
 		<![CDATA[
-			update board set
-			title = #{title},
-			content = #{content},
-			updateDate = #{updateDate}
+			content = #{content, jdbcType = VARCHAR},
+            id = #{id},
+			updateDate = sysdate
 			where 1 = 1
 			and bno = #{bno}
-		]]>
+        ]]>
     </update>
 
     <delete id="delete">

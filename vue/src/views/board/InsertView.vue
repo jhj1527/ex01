@@ -17,10 +17,10 @@
   const { member } = storeToRefs(useStore());
   const insert = async () => {
     try {
-      if (input.title === "" && input.content === "") {
-        alert("error");
-        return;
-      }
+      // if (input.title === "" && input.content === "") {
+      //   alert("error");
+      //   return;
+      // }
       
       result.value = await commonApi("/api/board/insert", "POST", input);
       
@@ -55,11 +55,11 @@
     <form @submit.prevent="insert">
       <div class="form-group">
         <label for="title">title</label>
-        <input type="text" v-model="input.title" class="form-control" id="title"  required />
+        <input type="text" v-model="input.title" class="form-control" id="title" required/>
       </div>
       <div class="form-group">
         <label for="content">content</label>
-        <textarea v-model="input.content" class="form-control" id="content" rows="3" required></textarea>
+        <textarea v-model="input.content" class="form-control" id="content" rows="3"></textarea>
       </div>
       <div class="form-group">
         <label for="title">id</label>
