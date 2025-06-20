@@ -1,11 +1,16 @@
 package com.example.ex01.controller;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,35 +18,44 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.ex01.dto.AttachDto;
 
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnailator;
 
 @RestController
 @RequestMapping("/api/file/*")
 @Slf4j
 public class FileController {
 	@PostMapping("/upload")
-	public ResponseEntity<?> upload(MultipartFile[] uploadFile , @RequestParam("uploadFolderPath") String uploadFolderPath) {
-		log.info("uploadFolderPath ▶▶▶▶▶▶▶▶▶▶▶▶▶▶▶ " + uploadFolderPath);
+	public ResponseEntity<?> upload(@RequestParam("file") MultipartFile[] file, @RequestParam("folderPath") String folderPath) {
+//		List.of(file).forEach(f -> 
+//			log.info("uploadFolderPath ▶▶▶▶▶▶▶▶▶▶▶▶▶▶▶ " + f)
+//		);
 		
 		List<AttachDto> list = new ArrayList<>();
 		String uploadFolder = "D:\\upload";
 		
-		File uploadPath = new File(uploadFolder, uploadFolderPath);
+		File uploadPath = new File(uploadFolder, folderPath);
 		
 		log.info("uploadPath ▶▶▶▶▶▶▶▶▶▶▶▶▶▶▶ " + uploadPath);
 		
@@ -50,12 +64,12 @@ public class FileController {
 			uploadPath.mkdirs();
 		}
 		
-		for (MultipartFile file : uploadFile) {
+		for (MultipartFile multipartFile : file) {
 			log.info("====================================");
-			log.info("upload File Name : " + file.getOriginalFilename());
-			log.info("upload File Size : " + file.getSize());
+			log.info("upload File Name : " + multipartFile.getOriginalFilename());
+			log.info("upload File Size : " + multipartFile.getSize());
 			
-			String uploadFileName = file.getOriginalFilename();
+			String uploadFileName = multipartFile.getOriginalFilename();
 			
 			// IE has file path
 			uploadFileName = uploadFileName.substring(uploadFileName.lastIndexOf("\\") + 1);
@@ -70,28 +84,26 @@ public class FileController {
 				
 				AttachDto dto = AttachDto.builder()
 						.attchId(uuid.toString())
-						.filePath(uploadFolderPath)
+						.filePath(folderPath)
 						.fileName(uploadFileName)
 						.fileType(checkImageType(saveFile))
 						.build();
 				
 				list.add(dto);
 				
-				file.transferTo(saveFile);
+				multipartFile.transferTo(saveFile);
 				
 				// check Image type file
-//				if (checkImageType(saveFile)) {
-//					dto.setFileType(checkImageType(saveFile));
+//				if (dto.isFileType()) {
 //					
 //					FileOutputStream thumbnail = new FileOutputStream(new File(uploadPath, "s_" + uploadFileName));
-//					Thumbnailator.createThumbnail(file.getInputStream() , thumbnail , 100 , 100);
+//					Thumbnailator.createThumbnail(multipartFile.getInputStream() , thumbnail , 100 , 100);
 //					
 //					thumbnail.close();
 //					
 //				} else {
-//					file.transferTo(saveFile);
+//					multipartFile.transferTo(saveFile);
 //				}
-				
 				
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -108,21 +120,21 @@ public class FileController {
 		return ResponseEntity.status(HttpStatus.OK).body(list);
 	}
 	
-	@GetMapping("/display")
-	public ResponseEntity<?> display(@RequestParam("fileName") String fileName) {
+	@GetMapping("/getFile")
+	public ResponseEntity<?> getFile(@RequestParam("filePath") String filePath, @RequestParam("fileName") String fileName) {
 		try {
-			File file = new File("D:\\upload\\" + fileName);
+			File file = new File("D:\\upload\\" + filePath + "\\" + fileName);
 			
 			ResponseEntity<byte[]> result = null;
 			
 			HttpHeaders header = new HttpHeaders();
 			header.add("Content-Type", Files.probeContentType(file.toPath()));
 			
-			result = new ResponseEntity<>(FileCopyUtils.copyToByteArray(file) , header , HttpStatus.OK);
+			result = new ResponseEntity<>(FileCopyUtils.copyToByteArray(file), header, HttpStatus.OK);
 			
 			return result;
 			
-		} catch (Exception e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			
 			Map<String, Object> map = new HashMap<>();
@@ -130,9 +142,31 @@ public class FileController {
 			
 			log.error(map.get("message").toString());
 			
-			return new ResponseEntity<>(map, HttpStatus.INTERNAL_SERVER_ERROR); 
+			return ResponseEntity.internalServerError().body(map);
 		}
 	}
+	
+//	@GetMapping("/display")
+//	public ResponseEntity<?> display(@RequestParam("filePath") String filePath, @RequestParam("fileName") String fileName) {
+//		try {
+//			Path path = Paths.get("D:\\upload\\" + filePath + "\\" + fileName);
+//			Resource resource = new UrlResource(path.toUri());
+//			
+//			if (resource.exists() || resource.isReadable()) {
+//                return ResponseEntity.ok()
+//                		.contentType(MediaType.IMAGE_JPEG)
+//                		.body(resource);
+//                
+//            } else {
+//                return ResponseEntity.notFound().build();
+//            }
+//			
+//		} catch (MalformedURLException e) {
+//			e.printStackTrace();
+//			
+//			return ResponseEntity.notFound().build();
+//		}
+//	}
 	
 	@GetMapping("/download")
 	public ResponseEntity<Resource> download(@RequestHeader("User-Agent") String userAgent, String fileName) {
@@ -177,13 +211,15 @@ public class FileController {
 	}
 	
 	@PostMapping("/delete")
-	public ResponseEntity<?> delete(String fileName, String type) {
-		log.info("deleteFile ▶▶▶▶▶▶▶▶▶▶▶▶▶▶▶ : " + fileName);
-		log.info("type : ▶▶▶▶▶▶▶▶▶▶▶▶▶▶▶ " + type);
+	public ResponseEntity<?> delete(@RequestBody AttachDto dto) {
+//	public ResponseEntity<?> delete(@RequestParam("fileName") String fileName, @RequestParam("fileType")String fileType) {
+//		log.info("deleteFile ▶▶▶▶▶▶▶▶▶▶▶▶▶▶▶ : " + fileName);
+//		log.info("fileType : ▶▶▶▶▶▶▶▶▶▶▶▶▶▶▶ " + fileType);
+		log.info("dto : ▶▶▶▶▶▶▶▶▶▶▶▶▶▶▶ " + dto);
 
 		try {
-			File file = new File("D:\\upload\\" + URLDecoder.decode(fileName, "UTF-8"));
-			log.info("file : " + file);
+			File file = new File("D:\\upload\\" + dto.getFilePath().trim() + "\\" + URLDecoder.decode(dto.getFileName(), "UTF-8"));
+			log.info("file : " + file.toString());
 
 			if (file.exists()) {
 				file.delete();
@@ -193,7 +229,7 @@ public class FileController {
 //
 //            if (directoryList.length == 0) file.getParentFile().delete();
 //
-//            if (type.equals("image")) {
+//            if (Filetype.equals("image")) {
 //                String largeFileName = file.getAbsolutePath().replace("s_" , "");
 //                log.info("largeFileName : " + largeFileName);
 //

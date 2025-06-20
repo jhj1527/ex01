@@ -38,8 +38,8 @@ const router = createRouter({
       component: () => import('../views/member/LoginView.vue'),
     },
     {
-      path: "/member/info",
-      name: "info",
+      path: "/member/get",
+      name: "get",
       component: () => import('../views/member/GetView.vue'),
     },
     {
@@ -52,13 +52,18 @@ const router = createRouter({
       name: "replyUpdate",
       component: () => import('../views/reply/UpdateView.vue'),
     },
+    {
+      path: "/item/insert",
+      name: "itemInsert",
+      component: () => import('../views/item/InsertView.vue'),
+    },
   ],
 });
 
 router.beforeEach((to, from, next) => {
   const store = useStore();
   const { member } = storeToRefs(store);
-  const urlArr = ['/member/login', '/member/insert', '/board/list', '/board/get', '/reply/list'];
+  const urlArr = ['/member/login', '/member/insert', '/board/list', '/board/get', '/reply/list', '/reply/list', '/item/insert'];
 
   let result = urlArr.filter(i => to.path.includes(i)); 
 

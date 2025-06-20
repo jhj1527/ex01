@@ -11,7 +11,8 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 
-@Configuration
+//@EnableWebMvc
+//@Configuration
 public class WebConfig implements WebMvcConfigurer {
 //	@Override
 //	public void addCorsMappings(CorsRegistry registry) {
@@ -27,6 +28,6 @@ public class WebConfig implements WebMvcConfigurer {
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/api/file/**")
-				.addResourceLocations("file:///D:upload/");
+				.addResourceLocations("file:///D:upload/**/");
 	}
 }

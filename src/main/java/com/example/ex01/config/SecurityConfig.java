@@ -96,7 +96,7 @@ public class SecurityConfig {
 		http.authorizeHttpRequests(auth -> auth
 				.requestMatchers(HttpMethod.OPTIONS, "/**")
 				.permitAll()
-				.requestMatchers("/api/board/**", "/api/member/**", "/api/reply/**", "/api/file/**")
+				.requestMatchers("/api/board/**", "/api/member/**", "/api/reply/**", "/api/file/**", "/api/item/**")
 				.permitAll()
 				.anyRequest()
 				.authenticated()

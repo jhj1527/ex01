@@ -31,11 +31,12 @@
           res.value = await instance.get(url);
           break;
 
-        case "POST":  
-          if (url.includes("login")) {
+        case "POST":
+          if (url.includes("login") || url.includes("upload")) {
             res.value = await instance.post(url, data, header);
 
           } else {
+            debugger;
             res.value = await instance.post(url, data);
           }
           break;
@@ -47,7 +48,7 @@
         case "DELETE":
           res.value = await instance.delete(url);
           break;
-
+          
         default:
           break;
       }
