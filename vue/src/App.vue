@@ -4,7 +4,6 @@
   import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
   import { useStore } from './stores/store';
-  import { Modal } from 'bootstrap';
   
   const router = useRouter();
   const store = useStore();
@@ -48,25 +47,6 @@
   <DefaultLayout>
     <RouterView @popup="popup"/>
   </DefaultLayout>
-
-
-<!-- 모달 -->
-<!-- <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p v-html="modalMsg"></p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div> -->
 </template>
 
 

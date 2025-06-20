@@ -36,7 +36,6 @@
             res.value = await instance.post(url, data, header);
 
           } else {
-            debugger;
             res.value = await instance.post(url, data);
           }
           break;

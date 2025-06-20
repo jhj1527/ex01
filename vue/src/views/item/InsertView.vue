@@ -15,7 +15,7 @@
     discount: "",
     category: "",
     content: "",
-    // attachList: [],
+    attachList: [],
   });
 
   const result = ref([]);
@@ -23,7 +23,7 @@
   const numberFilter = (e, col) => {
     // 숫자만 입력 가능하도록 필터링
     if (col.startsWith("price")) {
-      input.price = input.value.replace(/[^0-9]/g, '');
+      input.price = input.price.replace(/[^0-9]/g, '');
       input.price = Number(input.price);
 
     } else if (col.startsWith("discount")) {
@@ -92,14 +92,12 @@
 
       const res = await commonApi("/api/item/insert", "POST", input);
 
-      input = {
-        name: "",
-        price: "",
-        discount: "",
-        category: "",
-        content: "",
-        attachList: [],
-      };
+      input.name = "";
+      input.price = "";
+      input.discount = "";
+      input.category = "";
+      input.content = "";
+      input.attachList = [];
 
       result.value.data = "";
   
