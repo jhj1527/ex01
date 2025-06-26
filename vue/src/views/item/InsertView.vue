@@ -1,110 +1,108 @@
-<script setup>
+<script>
   import { useStore } from '@/stores/store';
-  import { storeToRefs } from 'pinia';
+  import { mapState, storeToRefs } from 'pinia';
   import { computed, reactive, ref, useTemplateRef } from 'vue'
   import { useRouter } from 'vue-router';
   import { commonApi } from '@/service/common';
 
-  const router = useRouter();
-  const store = useStore();
-  const { member } = storeToRefs(store);
+  export default {
+    name: "InsertView",
+    data() {
+      return {
+        input: {
+          name: "",
+          price: "",
+          discount: "",
+          category: "",
+          content: "",
+          attachList: [],
+        },
+        result: [],
+      };
+    },
+    computed: {
+      ...mapState(useStore, ["member"]),
+    },
+    methods: {
+      numberFilter(e, col) {
+        // 숫자만 입력 가능하도록 필터링
+        if (col.startsWith("price")) {
+          this.input.price = this.input.price.replace(/[^0-9]/g, '');
+          this.input.price = Number(this.input.price);
 
-  const input = reactive({
-    name: "",
-    price: "",
-    discount: "",
-    category: "",
-    content: "",
-    attachList: [],
-  });
+        } else if (col.startsWith("discount")) {
+          this.input.discount = this.input.discount.replace(/[^0-9]/g, '');
+          this.input.discount = Number(this.input.discount);
+        }
+      },
+      async onFileChange(e) {
+        this.result = [];
+        const formData = new FormData();
 
-  const result = ref([]);
+        if (e.target.files.length === 0) {
+          return;
+        }
+        
+        for (let i = 0; i < e.target.files.length; i++) {
+          formData.append('file', e.target.files[i]);
+        }
 
-  const numberFilter = (e, col) => {
-    // 숫자만 입력 가능하도록 필터링
-    if (col.startsWith("price")) {
-      input.price = input.price.replace(/[^0-9]/g, '');
-      input.price = Number(input.price);
+        formData.append("folderPath" , this.input.category);
 
-    } else if (col.startsWith("discount")) {
-      input.discount = input.discount.replace(/[^0-9]/g, '');
-      input.discount = Number(input.discount);
-    }
-  }
+        // for (let value of formData.values()) {
+        //   console.log(value);
+        // }
 
-  const onFileChange = async(e) => {
-    result.value = "";
+        // for (let key of formData.keys()) {
+        //   console.log(formData.get(key));
+        // }
 
-    if (e.target.files.length === 0) {
-      return;
-    }
-    // console.log(e.target.files);
-    const formData = new FormData();
+        try {
+          const res = await commonApi("/api/file/upload", "POST", formData);
+          this.result = res.data;
 
-    for (let i = 0; i < e.target.files.length; i++) {
-      formData.append('file', e.target.files[i]);
-    }
+          // console.log(this.result);
+        } catch (e) {
+          console.log("error : ", e);
+        }
+      },
+      async deleteFile(i) {
+        try {
+          const res = await commonApi("/api/file/delete", "POST", this.result[i]);
+          // 해당 인덱스의 파일 객체 삭제
+          this.result = this.result.filter(file => file.attachId !== this.result[i].attachId);
 
-    formData.append("folderPath" , input.category);
+        } catch (e) {
+          console.log("error : ", e);
+        }
+      },
+      async submitForm() {
+        try {
+          if (this.result.length !== 0) {
+            this.input.attachList = this.result;  
+          }
 
-    // for (let value of formData.values()) {
-    //     console.log(value);
-    // }
-    
-
-    // for (let key of formData.keys()) {
-    //   console.log(formData.get(key));
-    // }
-
-    try {
-      result.value = await commonApi("/api/file/upload", "POST", formData);
-
-      console.log(result.value.data);
-
-    } catch (e) {
-      console.log("error : ", e);
-    }
-  }
-
-  const deleteFile = async(i) => {
-    try {
-      const res = await commonApi("/api/file/delete", "POST", result.value.data[i]);
-
-      // 해당 인덱스의 파일 객체 삭제
-      result.value.data = result.value.data.filter(file => 
-        file.attchId !== result.value.data[i].attchId
-      );
-
-      console.log(result.value.data);
-
-      // inputFile.value.value = '';
-  
-    } catch (e) {
-      console.log("error : ", e);
-    }
-  }
-
-  const submitForm = async() => {
-    try {
-      input.attachList = result.value.data;
-
-      console.log(input);
-
-      const res = await commonApi("/api/item/insert", "POST", input);
-
-      input.name = "";
-      input.price = "";
-      input.discount = "";
-      input.category = "";
-      input.content = "";
-      input.attachList = [];
-
-      result.value.data = "";
-  
-    } catch (e) {
-      console.log("error : ", e);
-    }
-  }
+          const res = await commonApi("/api/item/insert", "POST", this.input);
+          
+          this.input.name = "";
+          this.input.price = "";
+          this.input.discount = "";
+          this.input.category = "";
+          this.input.content = "";
+          this.input.attachList = [];
+          this.result = [];
+          this.$refs.inputFile.value = null;
+          
+        } catch (e) {
+          console.log("error : ", e);
+        }
+      },
+    },
+    // emits: ["popup"],
+    // props: {
+    //   bno: [Number, String]
+    // },
+  };
 </script>
 
 <template>
@@ -126,11 +124,8 @@
       <div class="mb-3">
         <label for="category" class="form-label">카테고리</label>
         <select v-model="input.category" class="form-select" id="category">
-          <option value="" disabled>카테고리 선택</option>
-          <option value="a">의류</option>
-          <option value="b">전자제품</option>
-          <option value="c">식품</option>
-          <option value="d">기타</option>
+          <option value="fluit">과일</option>
+          <option value="vegetable">체소</option>
         </select>
       </div>
       <div class="mb-3">
@@ -139,15 +134,15 @@
       </div>
       <div class="mb-3">
         <label for="image" class="form-label">상품 이미지</label>
-        <input type="file" @change="onFileChange($event)" ref="inputFile" class="form-control"id="image" multiple>
+        <input type="file" @change="onFileChange($event)" ref="inputFile" class="form-control" id="image" multiple>
       </div>
-      <div class="mb-3" v-if="result.data">
+      <div class="mb-3" v-if="result.length > 0">
         <label class="form-label">업로드된 이미지 미리보기</label>
         <div class="d-flex flex-wrap gap-2">
           
-          <div v-for="(image, i) in result.data" :key="image.attchId">
+          <div v-for="(image, i) in result" :key="image.attchId">
             <img :src="`http://localhost:8081/api/file/getFile?filePath=${image.filePath}&fileName=${image.fileName}`" v-if="image.fileType" alt="업로드 이미지" class="img-thumbnail">
-            <p @click="deleteFile(i)">{{ image.fileName }}</p>
+            <p @click="deleteFile(i)" v-html="image.fileName"></p>
           </div>
         </div>
       </div>

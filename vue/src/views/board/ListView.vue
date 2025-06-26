@@ -83,7 +83,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in result">
+          <tr v-for="item in result" :key="item.bno">
             <td><RouterLink :to="`/board/get/${item.bno}`">{{ item.bno }}</RouterLink></td>
             <td>{{ item.title }}[{{ item.replyCount }}]</td>
             <td>{{ item.content }}</td>
@@ -119,7 +119,7 @@
         <li :class="page.prev ? 'page-item' : 'page-item disabled'">
           <a @click="pageClick(page.startPage - 1)" class="page-link" href="#" tabindex="-1" :aria-disabled="false">Prev</a>
         </li>
-        <li v-for="item in numbers" :class="item === page.criteriaDto.pageNum ? 'page-item active' : 'page-item'">
+        <li v-for="item in numbers" :key="item" :class="item === page.criteriaDto.pageNum ? 'page-item active' : 'page-item'">
           <a @click="pageClick(item)" class="page-link" href="#">{{ item }}</a>
         </li>
         <li :class="page.next ? 'page-item' : 'page-item disabled'">

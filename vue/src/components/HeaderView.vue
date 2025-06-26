@@ -43,7 +43,8 @@
         <li><RouterLink to="/" class="nav-link px-2 link-secondary">Home</RouterLink></li>
         <li><RouterLink to="/board/list" class="nav-link px-2 link-dark">Board</RouterLink></li>
         <li><RouterLink to="/member/get" class="nav-link px-2 link-dark">Info</RouterLink></li>
-        <li><RouterLink to="/item/insert" class="nav-link px-2 link-dark">About</RouterLink></li>
+        <li><RouterLink to="/item/insert" class="nav-link px-2 link-dark">insert</RouterLink></li>
+        <li><RouterLink to="/item/list" class="nav-link px-2 link-dark">itemList</RouterLink></li>
       </ul>
 
       <div class="col-md-3 text-end">

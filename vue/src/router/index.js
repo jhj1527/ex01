@@ -23,7 +23,7 @@ const router = createRouter({
     },
     {
       path: "/board/get/:bno",
-      name: "get",
+      name: "boardGet",
       component: () => import('../views/board/GetView.vue'),
       props : true,
     },
@@ -39,7 +39,7 @@ const router = createRouter({
     },
     {
       path: "/member/get",
-      name: "info",
+      name: "memberGet",
       component: () => import('../views/member/GetView.vue'),
     },
     {
@@ -53,9 +53,20 @@ const router = createRouter({
       component: () => import('../views/reply/UpdateView.vue'),
     },
     {
+      path: "/item/list",
+      name: "Itemlist",
+      component: () => import('../views/item/ListView.vue'),
+    },
+    {
       path: "/item/insert",
       name: "itemInsert",
       component: () => import('../views/item/InsertView.vue'),
+    },
+    {
+      path: "/item/get/:ino",
+      name: "itemGet",
+      component: () => import('../views/item/getView.vue'),
+      props : true,
     },
   ],
 });
@@ -68,7 +79,9 @@ router.beforeEach((to, from, next) => {
     '/member/insert', 
     '/board/list', 
     '/board/get', 
-    '/reply/list', 
+    '/reply/list',
+    '/item/list', 
+    '/item/get',
   ];
 
   let result = urlArr.filter(i => to.path.includes(i)); 
