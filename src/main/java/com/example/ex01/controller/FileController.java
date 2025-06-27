@@ -83,7 +83,7 @@ public class FileController {
 				File saveFile = new File(uploadPath, uploadFileName);
 				
 				AttachDto dto = AttachDto.builder()
-						.attchId(uuid.toString())
+						.attachId(uuid.toString())
 						.filePath(folderPath)
 						.fileName(uploadFileName)
 						.fileType(checkImageType(saveFile))
@@ -130,9 +130,12 @@ public class FileController {
 			HttpHeaders header = new HttpHeaders();
 			header.add("Content-Type", Files.probeContentType(file.toPath()));
 			
-			result = new ResponseEntity<>(FileCopyUtils.copyToByteArray(file), header, HttpStatus.OK);
-			
-			return result;
+//			result = new ResponseEntity<>(FileCopyUtils.copyToByteArray(file), header, HttpStatus.OK);
+//			
+//			return result;
+			return ResponseEntity.ok()
+					.headers(header)
+					.body(FileCopyUtils.copyToByteArray(file));
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -146,27 +149,27 @@ public class FileController {
 		}
 	}
 	
-//	@GetMapping("/display")
-//	public ResponseEntity<?> display(@RequestParam("filePath") String filePath, @RequestParam("fileName") String fileName) {
-//		try {
-//			Path path = Paths.get("D:\\upload\\" + filePath + "\\" + fileName);
-//			Resource resource = new UrlResource(path.toUri());
-//			
-//			if (resource.exists() || resource.isReadable()) {
-//                return ResponseEntity.ok()
-//                		.contentType(MediaType.IMAGE_JPEG)
-//                		.body(resource);
-//                
-//            } else {
-//                return ResponseEntity.notFound().build();
-//            }
-//			
-//		} catch (MalformedURLException e) {
-//			e.printStackTrace();
-//			
-//			return ResponseEntity.notFound().build();
-//		}
-//	}
+	@GetMapping("/display")
+	public ResponseEntity<?> display(@RequestParam("filePath") String filePath, @RequestParam("fileName") String fileName) {
+		try {
+			Path path = Paths.get("D:\\upload\\" + filePath + "\\" + fileName);
+			Resource resource = new UrlResource(path.toUri());
+			
+			if (resource.exists() || resource.isReadable()) {
+                return ResponseEntity.ok()
+                		.contentType(MediaType.IMAGE_JPEG)
+                		.body(resource);
+                
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+			
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			
+			return ResponseEntity.notFound().build();
+		}
+	}
 	
 	@GetMapping("/download")
 	public ResponseEntity<Resource> download(@RequestHeader("User-Agent") String userAgent, String fileName) {
@@ -218,16 +221,18 @@ public class FileController {
 		log.info("dto : ▶▶▶▶▶▶▶▶▶▶▶▶▶▶▶ " + dto);
 
 		try {
-			File file = new File("D:\\upload\\" + dto.getFilePath().trim() + "\\" + URLDecoder.decode(dto.getFileName(), "UTF-8"));
+			File file = new File("D:\\upload\\" + dto.getFilePath().trim() + "\\" 
+					+ URLDecoder.decode(dto.getFileName(), "UTF-8"));
+			
 			log.info("file : " + file.toString());
+			
+			if (file.exists()) file.delete();
+			
+            File[] directoryList = file.getParentFile().listFiles();
 
-			if (file.exists()) {
-				file.delete();
-			}
-
-//            File[] directoryList = file.getParentFile().listFiles();
-//
-//            if (directoryList.length == 0) file.getParentFile().delete();
+            if (directoryList.length == 0) {
+            	file.getParentFile().delete();
+            }
 //
 //            if (Filetype.equals("image")) {
 //                String largeFileName = file.getAbsolutePath().replace("s_" , "");
@@ -238,6 +243,10 @@ public class FileController {
 //            }
 
 		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			
+		} catch (IOException e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}

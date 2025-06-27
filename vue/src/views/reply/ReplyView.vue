@@ -123,7 +123,7 @@ export default {
     </div>
 
     <!-- 댓글 목록 -->
-    <div class="card mb-2" v-for="(reply, i) in result" :key="reply.rno">
+    <div class="card mb-2" v-for="reply in result" :key="reply.rno">
       <div class="card-body">
         <div class="d-flex justify-content-between">
           <h6 class="card-subtitle mb-2 text-muted">{{ reply.id }}</h6>
@@ -142,7 +142,7 @@ export default {
         <li :class="page.prev ? 'page-item' : 'page-item disabled'">
           <a @click="pageClick(page.startPage - 1)" class="page-link" href="#" tabindex="-1" :aria-disabled="false">Prev</a>
         </li>
-        <li v-for="item in numbers" :class="item === page.criteriaDto.pageNum ? 'page-item active' : 'page-item'">
+        <li v-for="item in numbers" :key="item" :class="item === page.criteriaDto.pageNum ? 'page-item active' : 'page-item'">
           <a @click="pageClick(item)" class="page-link" href="#">{{ item }}</a>
         </li>
         <li :class="page.next ? 'page-item' : 'page-item disabled'">

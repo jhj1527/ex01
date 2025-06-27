@@ -7,9 +7,9 @@ import lombok.Data;
 @Data
 public class ItemDto {
 	private Long ino;
-    private String category;
     private String name;
     private Long price;
+    private String category;
     private Long amount;
     private Long discount;
     private String content;

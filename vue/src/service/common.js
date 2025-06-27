@@ -26,9 +26,16 @@
         instance.defaults.withCredentials = true;
       }
 
+      if (url.includes("getFile")) {
+        // 서버에서 이미지 데이터를 blob 형태로 받는다.
+        instance.defaults.responseType = "blob";
+      }
+      
       switch (type.toUpperCase()) {
         case "GET":
-          res.value = await instance.get(url);
+          const params = data === undefined ? {} : data;
+          res.value = await instance.get(url, {params: params});
+          // res.value = await instance.get(url);
           break;
 
         case "POST":
