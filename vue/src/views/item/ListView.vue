@@ -32,6 +32,8 @@
         try {
           const res = await commonApi('/api/item/list', "get", this.param);
 
+          console.log(res.data.list);
+
           this.result = res.data.list;
           this.page = res.data.page;
           this.param = res.data.page.criteriaDto;
@@ -56,57 +58,65 @@
             fileName: fileName
           };
           const res = await commonApi("/api/file/getFile", "GET", params);
+
+          console.log(res.data);
+
           const url = URL.createObjectURL(res.data);
-          this.$refs.mainImage[i].src = url;
+          this.$refs.mainImage[0].src = url;
 
         } catch (e) {
           console.log(e);
         }
       },
-      
+      pageClick(pageNum){
+        this.param.pageNum = pageNum;
+        this.getList();
+      },
+      search(){
+        this.param.pageNum = 1;
+        this.getList();
+      },
+      orderList(type) {
+        this.param.pageNum = 1;
+        this.param.type = type; 
+        this.param.keyword = "";
+        
+        this.getList();
+      },
+      insert(){
+        this.$router.push("/item/insert");
+      },
     },
   };
 </script>
 <template>
   <div class="container">
-
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div>
-        <span>총 <span style="color: #e74c3c;" v-html="page.total"></span>건</span>
+        <span>총 <span style="color: #e74c3c;" v-html="priceFormat(page.total)"></span>건</span>
+      </div>
+      <div class="button-group">
+        <button 
+        v-if="member.id !== null && member.id.startsWith('admin')" 
+        @click="insert" 
+        class="btn btn-primary me-2"> 
+        insert
+      </button>
       </div>
       <div class="d-flex align-items-center justify-content-center flex-grow-1">
-        <select class="form-select me-2" style="width: 120px;">
-          <option value="">카테고리</option>
-          <option value="electronics">전자제품</option>
-          <option value="fashion">패션</option>
-          <option value="books">도서</option>
+        <select v-model="param.type" class="form-select me-2" style="width: 120px;">
+          <option value="">전체</option>
+          <option value="fruit">과일</option>
+          <option value="vegetable">채소</option>
         </select>
-        <input type="text" class="form-control me-2" placeholder="상품명 검색" style="width: 300px;">
-        <button class="btn btn-primary">검색</button>
+        <input type="text" v-model="param.keyword" @keyup.enter="search" class="form-control me-2" placeholder="상품명 검색" style="width: 300px;">
+        <button @click="search" class="btn btn-primary">검색</button>
       </div>
 
       <div class="d-flex align-items-center" style="font-size: 0.9rem;">
-        <router-link
-          to="?sort=new"
-          class="fw-bold me-3 sort-link"
-          active-class="active"
-          exact
-        >신상품순</router-link>
-        <router-link
-          to="?sort=popular"
-          class="text-secondary me-3 sort-link"
-          active-class="active"
-        >인기상품순</router-link>
-        <router-link
-          to="?sort=low"
-          class="text-secondary me-3 sort-link"
-          active-class="active"
-        >낮은가격순</router-link>
-        <router-link
-          to="?sort=high"
-          class="text-secondary sort-link"
-          active-class="active"
-        >높은가격순</router-link>
+        <p @click="orderList('newItem')" class="fw-bold me-3 sort-link" active-class="active" style="cursor: pointer;">신상품순</p>
+        <p @click="orderList('lowPrice')" class="text-secondary me-3 sort-link" active-class="active" style="cursor: pointer;">낮은가격순</p>
+        <p @click="orderList('highPrice')" class="text-secondary sort-link" active-class="active" style="cursor: pointer;">높은가격순</p>
       </div>
     </div>
     <hr>
@@ -123,7 +133,7 @@
               <!-- Product image-->
               <img 
                 v-if="item.attachList.length > 0 && item.attachList[0].fileType"
-                :src="getImage(item.attachList[0].filePath, item.attachList[0].fileName, i)"
+                :src="`http://localhost:8081/api/file/getFile?filePath=${item.attachList[0].filePath}&fileName=${item.attachList[0].fileName}`"
                 ref="mainImage" 
                 class="card-img-top"
               >

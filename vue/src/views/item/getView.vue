@@ -9,14 +9,13 @@
       return {
         // mainImage: '',
         images: [],
-        amount: 1,
         result : {},
         idx: 0,
         active : "",
         input: {
           ino: "", 
           id: "",
-          amount: "",
+          amount: 1,
           price: "",
         },
       };
@@ -79,20 +78,20 @@
         }
       },
       plus() {
-        this.result.price = this.result.price / this.amount
-        this.amount++;
-        if (this.amount > 10) {
-          this.amount = 10;
+        this.result.price = this.result.price / this.input.amount
+        this.input.amount++;
+        if (this.input.amount > 10) {
+          this.input.amount = 10;
         }
-        this.result.price = this.result.price * this.amount;
+        this.result.price = this.result.price * this.input.amount;
       },
       minus() {
-        this.result.price = this.result.price / this.amount
-        this.amount--;
-        if (this.amount < 1) {
-          this.amount = 1;
+        this.result.price = this.result.price / this.input.amount
+        this.input.amount--;
+        if (this.input.amount < 1) {
+          this.input.amount = 1;
         }
-        this.result.price = this.result.price * this.amount;
+        this.result.price = this.result.price * this.input.amount;
       },
       addCart() {
         if (this.member.id === null || this.member.id === "") {
@@ -103,7 +102,6 @@
 
         this.input.ino = this.ino;
         this.input.id = this.member.id;
-        this.input.amount = this.amount;
         this.input.price = this.result.price;
 
         if (this.result.discount > 0) {
@@ -115,6 +113,25 @@
       imageChange(e, i) {
         this.$refs.mainImage.src = this.$refs.subImage[i].src;
         // this.idx = i;
+      },
+      updateItem() {
+
+      },
+      async deleteItem() {
+        if (confirm("삭제 하시겠습니까?")) {
+          const param = {
+            ino : this.ino
+          };
+
+          const res = await commonApi("/api/item/delete", "DELETE", param);
+          
+          // console.log(res);
+
+          if (res.status === 200) {
+            alert("delete");
+            this.$router.push("/item/list");
+          }
+        }
       },
     },
     props: {
@@ -179,7 +196,7 @@
             @click="minus"
             aria-label="수량 감소"
           >-</button>
-          <span class="mx-3">{{ amount }}</span>
+          <span class="mx-3">{{ input.amount }}</span>
           <button
             type="button"
             class="btn btn-outline-secondary"
@@ -190,6 +207,10 @@
         <button class="btn btn-primary" @click="addCart">
           장바구니 담기
         </button>
+        <div v-if="this.member.id.startsWith('admin')" class="mt-3 d-flex gap-2">
+          <button class="btn btn-warning" @click="updateItem">상품 수정</button>
+          <button class="btn btn-danger" @click="deleteItem">상품 삭제</button>
+        </div>
       </div>
     </div>
     <!-- Product Description Tabs -->

@@ -150,7 +150,7 @@
           
           <div v-for="(image, i) in result" :key="image.attchId">
             <img :src="`http://localhost:8081/api/file/getFile?filePath=${image.filePath}&fileName=${image.fileName}`" v-if="image.fileType" alt="업로드 이미지" class="img-thumbnail">
-            <p @click="deleteFile(i)" v-html="image.fileName"></p>
+            <p @click="deleteFile(i)" v-html="image.fileName" style="cursor: pointer;"></p>
           </div>
         </div>
       </div>

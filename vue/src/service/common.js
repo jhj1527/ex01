@@ -33,8 +33,7 @@
       
       switch (type.toUpperCase()) {
         case "GET":
-          const params = data === undefined ? {} : data;
-          res.value = await instance.get(url, {params: params});
+          res.value = await instance.get(url, {params: data === undefined ? {} : data});
           // res.value = await instance.get(url);
           break;
 
@@ -52,7 +51,8 @@
           break;
 
         case "DELETE":
-          res.value = await instance.delete(url);
+          res.value = await instance.delete(url, {params: data === undefined ? {} : data});
+          // res.value = await instance.delete(url);
           break;
           
         default:
