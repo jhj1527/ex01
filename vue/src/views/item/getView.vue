@@ -7,47 +7,114 @@
     name: 'GetView',
     data() {
       return {
-        mainImage: '',
+        // mainImage: '',
         images: [],
-        quantity: 1,
+        amount: 1,
         result : {},
+        idx: 0,
+        active : "",
+        input: {
+          ino: "", 
+          id: "",
+          amount: "",
+          price: "",
+        },
       };
     },
     mounted() {
       this.get(this.ino);
-      this.test();
     },
     computed: {
       ...mapState(useStore, ["member"]),
+      priceFormat() {
+        return price => price ? price.toLocaleString() : '';
+      },
+    },
+    beforeDestroy() {
+      // 메인 이미지 URL 메모리에서 제거
+      URL.revokeObjectURL(this.$refs.mainImage.src);
+      // 모든 서브 이미지 URL 메모리에서 제거
+      for (let i = 0; i < this.result.attachList.length; i++) {
+        URL.revokeObjectURL(this.$refs.subImage[i].src);
+      }
     },
     methods: {
       async get(ino) {
-        // try {
-        //   const res = await commonApi(`/api/item/${ino}`, 'GET');
-        //   console.log(res);
-        //   this.result = res.data;
-          
-        // } catch (e) {
-        //   console.log(e);
-        // }
-      },
-      async test() {
         try {
-          const params = {
-            filePath: "b",
-            fileName: "e008a331-4f65-4823-9c74-25fdd807b233_mountain-8531778_640.jpg" 
+          const res = await commonApi(`/api/item/${ino}`, 'GET');
+
+          console.log(res);
+
+          if (res.status == 200) {
+             this.result = res.data;
+            //  this.getImage(this.result, 'main');
           }
-          const res = await commonApi("/api/file/getFile", "GET", params);
-          console.log(res.data);
-
-          const url = URL.createObjectURL(res.data);
-
-          this.$refs.mainImage.src = url;
-
-          // console.log(url);
+          
         } catch (e) {
           console.log(e);
         }
+      },
+      async getImage(image, i) {
+        try {
+          const params = {
+            filePath: image.filePath,
+            fileName: image.fileName
+          };
+
+          const res = await commonApi("/api/file/getFile", "GET", params);
+
+          // console.log(res.data);
+          // url 생성
+          const url = URL.createObjectURL(res.data);
+
+          if (i === undefined) {
+            this.$refs.mainImage.src = url;
+
+          } else {
+            this.$refs.subImage[i].src = url;
+          }
+
+        } catch (e) {
+          console.log(e);
+        }
+      },
+      plus() {
+        this.result.price = this.result.price / this.amount
+        this.amount++;
+        if (this.amount > 10) {
+          this.amount = 10;
+        }
+        this.result.price = this.result.price * this.amount;
+      },
+      minus() {
+        this.result.price = this.result.price / this.amount
+        this.amount--;
+        if (this.amount < 1) {
+          this.amount = 1;
+        }
+        this.result.price = this.result.price * this.amount;
+      },
+      addCart() {
+        if (this.member.id === null || this.member.id === "") {
+          alert("로그인 후 이용해주세요.");
+          this.$router.push("/member/login");
+          return;
+        }
+
+        this.input.ino = this.ino;
+        this.input.id = this.member.id;
+        this.input.amount = this.amount;
+        this.input.price = this.result.price;
+
+        if (this.result.discount > 0) {
+          this.input.price = this.result.price * (100 - this.result.discount) / 100;
+        }
+
+        console.log(this.input);
+      },
+      imageChange(e, i) {
+        this.$refs.mainImage.src = this.$refs.subImage[i].src;
+        // this.idx = i;
       },
     },
     props: {
@@ -59,40 +126,43 @@
 <template>
   <div class="container my-5">
     <div class="row">
-      <!-- Product Image -->
+      <!-- Product Images -->
       <div class="col-md-6 d-flex flex-column align-items-center">
-        <!-- 메인 이미지 -->
+        <!-- Main Image -->
         <img
-          :src="test"
-          alt="상품 이미지"
+          v-if="result.attachList && result.attachList.length"
+          :src="getImage(result.attachList[0])"
           ref="mainImage"
-          class="img-fluid rounded shadow-sm mb-3"
+          alt="메인 이미지"
+          class="img-fluid mb-3"
           style="max-height: 350px; object-fit: contain;"
         />
-        <!-- 썸네일 이미지 목록 -->
-        <div class="d-flex gap-2">
-          <!-- <img
-        v-for="(img, idx) in images"
-        :key="idx"
-        :src="`http://localhost:8081/api/file/getFile?filePath=b&fileName=e008a331-4f65-4823-9c74-25fdd807b233_mountain-8531778_640.jpg`"
-        alt="썸네일"
-        class="img-thumbnail"
-        :class="{ 'border-primary': mainImage === img }"
-        style="width: 60px; height: 60px; object-fit: cover; cursor: pointer;"
-        @click="mainImage = img"
-          /> -->
-          <!-- <img :src="`http://localhost:8081/api/file/getFile?filePath=b&fileName=e008a331-4f65-4823-9c74-25fdd807b233_mountain-8531778_640.jpg`" 
-          alt=""
-          class="img-thumbnail"
-
-          style="width: 100px; height: 100px; object-fit: cover; cursor: pointer;"> -->
+        <div v-else class="bg-light d-flex align-items-center justify-content-center mb-3" style="width:100%;height:350px;">
+          <span class="text-muted">이미지가 없습니다</span>
+        </div>
+        <!-- Thumbnails -->
+        <div v-if="result.attachList && result.attachList.length > 1" class="d-flex gap-2">
+          <img
+            v-for="(image, i) in result.attachList"
+            :key="image.attachId"
+            :src="getImage(image, i)"
+            ref="subImage"
+            alt="썸네일"
+            :index="i"
+            class="img-thumbnail"
+            :class="i === idx ? 'border-primary' : ''"
+            style="width: 70px; height: 70px; object-fit: cover; cursor: pointer;"
+            @click="imageChange($event, i)"
+          />
         </div>
       </div>
       <!-- Product Details -->
       <div class="col-md-6">
-        <h2 class="mb-3">상품명 예시</h2>
-        <p class="text-muted">카테고리: 전자제품</p>
-        <h4 class="text-primary mb-3">₩99,000</h4>
+        <h2 class="mb-3">{{result.name}}</h2>
+        <p class="text-muted">카테고리: {{result.category}}</p>
+        
+        <h4 v-if="result.discount > 0" class="text-primary mb-3">{{ priceFormat(result.price * (100 - result.discount) / 100) }}</h4>
+        <h4 v-else class="text-primary mb-3">{{ priceFormat(result.price) }}</h4>
         <!-- <p>
           이 상품은 최신 기술이 적용된 고품질 제품입니다. 다양한 기능과 세련된 디자인으로 일상에 편리함을 더해줍니다.
         </p>
@@ -102,22 +172,22 @@
           <li class="list-group-item">특징 3: 1년 무상 A/S</li>
         </ul> -->
         <div class="mb-3 d-flex align-items-center">
-          <label for="quantity" class="form-label me-3 mb-0">수량</label>
+          <label for="amount" class="form-label me-3 mb-0">수량</label>
           <button
             type="button"
             class="btn btn-outline-secondary"
-            @click="quantity > 1 && (quantity--)"
+            @click="minus"
             aria-label="수량 감소"
           >-</button>
-          <span class="mx-3">{{ quantity }}</span>
+          <span class="mx-3">{{ amount }}</span>
           <button
             type="button"
             class="btn btn-outline-secondary"
-            @click="quantity++"
+            @click="plus"
             aria-label="수량 증가"
           >+</button>
         </div>
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" @click="addCart">
           장바구니 담기
         </button>
       </div>
@@ -163,7 +233,7 @@
             aria-labelledby="desc-tab"
           >
             <p>
-              이곳에 상품의 상세 설명이 들어갑니다. 크기, 무게, 사용법 등 다양한 정보를 제공할 수 있습니다.
+              {{result.content}}
             </p>
           </div>
           <div

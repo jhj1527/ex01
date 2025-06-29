@@ -66,7 +66,7 @@ public class ItemController {
 			
 		} 
 		
-		return new ResponseEntity<>("OK", HttpStatus.CREATED);
+		return new ResponseEntity<>("insert", HttpStatus.CREATED);
 	}
 	
 	@GetMapping("/{ino}")

@@ -78,20 +78,28 @@
       },
       async submitForm() {
         try {
+          debugger
           if (this.result.length !== 0) {
             this.input.attachList = this.result;  
           }
 
           const res = await commonApi("/api/item/insert", "POST", this.input);
-          
-          this.input.name = "";
-          this.input.price = "";
-          this.input.discount = "";
-          this.input.category = "";
-          this.input.content = "";
-          this.input.attachList = [];
-          this.result = [];
-          this.$refs.inputFile.value = null;
+
+          if (res.status === 201) {
+            alert("insert");
+
+            this.input.name = "";
+            this.input.price = "";
+            this.input.discount = "";
+            this.input.category = "";
+            this.input.content = "";
+            this.input.attachList = [];
+            this.result = [];
+            this.$refs.inputFile.value = null;
+
+          } else {
+            alert("error");
+          }
           
         } catch (e) {
           console.log("error : ", e);
@@ -124,8 +132,8 @@
       <div class="mb-3">
         <label for="category" class="form-label">카테고리</label>
         <select v-model="input.category" class="form-select" id="category">
-          <option value="fluit">과일</option>
-          <option value="vegetable">체소</option>
+          <option value="fruit">과일</option>
+          <option value="vegetable">채소</option>
         </select>
       </div>
       <div class="mb-3">
