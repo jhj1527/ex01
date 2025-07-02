@@ -94,11 +94,11 @@
         this.result.price = this.result.price * this.input.amount;
       },
       addCart() {
-        if (this.member.id === null || this.member.id === "") {
-          alert("로그인 후 이용해주세요.");
-          this.$router.push("/member/login");
-          return;
-        }
+        // if (this.member.id === null || this.member.id === "") {
+        //   alert("로그인 후 이용해주세요.");
+        //   this.$router.push("/member/login");
+        //   return;
+        // }
 
         this.input.ino = this.ino;
         this.input.id = this.member.id;
@@ -115,7 +115,7 @@
         // this.idx = i;
       },
       updateItem() {
-
+        this.$router.push("/item/update/" + this.ino);
       },
       async deleteItem() {
         if (confirm("삭제 하시겠습니까?")) {

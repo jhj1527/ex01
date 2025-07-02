@@ -40,7 +40,7 @@ public class FileServiceImpl implements FileService {
 		List<AttachDto> list = new ArrayList<>();
 		File uploadPath = new File(uploadFolder, folderPath);
 		
-		log.info("uploadPath ▶▶▶▶▶▶▶▶▶▶▶▶▶▶▶ " + uploadPath);
+//		log.info("uploadPath ▶▶▶▶▶▶▶▶▶▶▶▶▶▶▶ " + uploadPath);
 		
 		// 폴더 없으면 생성
 		if (!uploadPath.exists()) {
@@ -57,7 +57,7 @@ public class FileServiceImpl implements FileService {
 			// IE has file path
 			uploadFileName = uploadFileName.substring(uploadFileName.lastIndexOf("\\") + 1);
 			
-			log.info("uploadFileName ▶▶▶▶▶▶▶▶▶▶▶▶▶▶▶ " + uploadFileName);
+//			log.info("uploadFileName ▶▶▶▶▶▶▶▶▶▶▶▶▶▶▶ " + uploadFileName);
 			
 			UUID uuid = UUID.randomUUID();
 			uploadFileName = uuid.toString() + "_" + uploadFileName;
@@ -165,7 +165,7 @@ public class FileServiceImpl implements FileService {
 			File file = new File(uploadFolder + "\\" + dto.getFilePath().trim() + "\\" 
 					+ URLDecoder.decode(dto.getFileName(), "UTF-8"));
 			
-			log.info("file : " + file.toString());
+//			log.info("file : " + file.toString());
 			
 			if (file.exists()) file.delete();
 			

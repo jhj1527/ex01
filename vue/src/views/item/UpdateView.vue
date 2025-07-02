@@ -4,7 +4,7 @@
   import { commonApi } from '@/service/common';
 
   export default {
-    name: "InsertView",
+    name: "UpdateView",
     data() {
       return {
         input: {
@@ -21,7 +21,38 @@
     computed: {
       ...mapState(useStore, ["member"]),
     },
+    mounted() {
+      this.get(this.ino);
+    },
+    beforeRouteLeave(to, from, next) {
+      // 뒤로가기 시 실행될 로직
+      this.input.attachList = this.input.attachList.filter(file => file.ino === null);
+
+      // console.log(this.input.attachList);
+
+      this.input.attachList.forEach((file, i) => {
+        this.deleteFile(i);
+      });
+
+      next();
+    },
     methods: {
+      async get(ino) {
+        try {
+          const res = await commonApi(`/api/item/${ino}`, 'GET');
+
+          // console.log(res);
+
+          if (res.status == 200) {
+             this.input = res.data;
+          }
+
+          // console.log(this.input)
+          
+        } catch (e) {
+          console.log(e);
+        }
+      },
       numberFilter(e, col) {
         // 숫자만 입력 가능하도록 필터링
         if (col.startsWith("price")) {
@@ -47,52 +78,40 @@
 
         formData.append("folderPath" , this.input.category);
 
-        // for (let value of formData.values()) {
-        //   console.log(value);
-        // }
-
-        // for (let key of formData.keys()) {
-        //   console.log(formData.get(key));
-        // }
-
         try {
           const res = await commonApi("/api/file/upload", "POST", formData);
           this.result = res.data;
 
-          // console.log(this.result);
+          this.result.forEach(file => this.input.attachList.push(file));
+
+          // console.log(this.input.attachList);
         } catch (e) {
           console.log("error : ", e);
         }
       },
       async deleteFile(i) {
         try {
-          const res = await commonApi("/api/file/delete", "POST", this.result[i]);
+          if (this.input.attachList[i].ino === null) {
+            const res = await commonApi("/api/file/delete", "POST", this.input.attachList[i]);
+          }
           // 해당 인덱스의 파일 객체 삭제
-          this.result = this.result.filter(file => file.attachId !== this.result[i].attachId);
+          this.input.attachList = this.input.attachList.filter(file => file.attachId !== this.input.attachList[i].attachId);
 
+          // console.log(this.input.attachList);
         } catch (e) {
           console.log("error : ", e);
         }
       },
-      async submitForm() {
+      async update() {
         try {
-          if (this.result.length !== 0) {
-            this.input.attachList = this.result;  
-          }
+          // console.log(this.input);
 
-          const res = await commonApi("/api/item/insert", "POST", this.input);
+          const res = await commonApi("/api/item/update", "patch", this.input);
 
-          if (res.status === 201) {
-            alert("insert");
-
-            this.input.name = "";
-            this.input.price = "";
-            this.input.discount = "";
-            this.input.category = "";
-            this.input.content = "";
-            this.input.attachList = [];
-            this.result = [];
+          if (res.status === 200) {
+            alert("update");
             this.$refs.inputFile.value = null;
+            this.get(this.ino);
 
           } else {
             alert("error");
@@ -102,18 +121,20 @@
           console.log("error : ", e);
         }
       },
+      list() {
+        this.$router.push("/item/list");
+      },
     },
-    // emits: ["popup"],
-    // props: {
-    //   bno: [Number, String]
-    // },
+    props: {
+      ino: [Number, String]
+    },
   };
 </script>
 
 <template>
   <div class="container mt-5">
-    <h2 class="mb-4">상품 등록</h2>
-    <form @submit.prevent="submitForm">
+    <h2 class="mb-4 justify-content-center">상품 수정</h2>
+    <!-- <form @submit.prevent="update1"> -->
       <div class="mb-3">
         <label for="name" class="form-label">상품명</label>
         <input type="text" v-model="input.name" class="form-control" id="name" required>
@@ -141,18 +162,21 @@
         <label for="image" class="form-label">상품 이미지</label>
         <input type="file" @change="onFileChange($event)" ref="inputFile" class="form-control" id="image" multiple>
       </div>
-      <div class="mb-3" v-if="result.length > 0">
+      <div class="mb-3" v-if="input.attachList.length > 0">
         <label class="form-label">업로드된 이미지 미리보기</label>
         <div class="d-flex flex-wrap gap-2">
           
-          <div v-for="(image, i) in result" :key="image.attchId">
+          <div v-for="(image, i) in input.attachList" :key="image.attchId">
             <img :src="`http://localhost:8081/api/file/getFile?filePath=${image.filePath}&fileName=${image.fileName}`" v-if="image.fileType" alt="업로드 이미지" class="img-thumbnail">
             <p @click="deleteFile(i)" v-html="image.fileName" style="cursor: pointer;"></p>
           </div>
         </div>
       </div>
-      <button type="submit" class="btn btn-primary">등록하기</button>
-    </form>
+    <!-- </form> -->
+    <div class="mt-3 d-flex gap-2">
+        <button @click="update" class="btn btn-primary">수정하기</button>
+        <button @click="list" class="btn btn-success">목록</button>
+    </div>
   </div>
 </template>
 

@@ -68,7 +68,7 @@
     <update id="update">
     	<![CDATA[
          	update item set
-			name = ${name},
+			name = #{name},
 			price = #{price},
 			category = #{category},
 			amount = #{amount},

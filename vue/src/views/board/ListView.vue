@@ -83,7 +83,7 @@
         </thead>
         <tbody>
           <tr v-for="item in result" :key="item.bno">
-            <td><RouterLink :to="`/board/get/${item.bno}`" v-html="item.bno"></RouterLink></td>
+            <td><RouterLink :to="`/board/get/${item.bno}`" >{{ item.bno }}</RouterLink></td>
             <td>{{ item.title }}[{{ item.replyCount }}]</td>
             <td v-html="item.content"></td>
             <td v-html="item.id"></td>

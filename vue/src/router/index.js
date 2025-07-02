@@ -68,6 +68,12 @@ const router = createRouter({
       component: () => import('../views/item/getView.vue'),
       props : true,
     },
+    {
+      path: "/item/update/:ino",
+      name: "itemUpdate",
+      component: () => import('../views/item/UpdateView.vue'),
+      props : true,
+    },
   ],
 });
 
