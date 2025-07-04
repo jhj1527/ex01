@@ -43,7 +43,7 @@ public class MemberServiceImpl implements MemberService{
 		MemberDto memberDto = findById(dto.getId());
 		
 		if (memberDto != null) {
-			throw new ApiException(ErrorCode.MEMBER_DUPLICATION, "아이디 중복");
+			throw new ApiException(ErrorCode.DUPLICATION, "아이디 중복");
 		}
 		
 		if (dto.getId().startsWith("admin")) {

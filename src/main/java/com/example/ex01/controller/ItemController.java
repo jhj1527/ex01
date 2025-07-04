@@ -49,6 +49,13 @@ public class ItemController {
 		
 		return ResponseEntity.ok().body(itemService.getList(dto));
 	}
+	
+	@GetMapping("/{ino}")
+	public ResponseEntity<?> get(@PathVariable("ino") Long ino) {
+		ItemDto dto = itemService.get(ino);
+		
+		return new ResponseEntity<>(dto, HttpStatus.OK);
+	}
 
 	@PostMapping("/insert")
 	public ResponseEntity<?> insert(@RequestBody ItemDto dto) throws Exception {
@@ -66,13 +73,6 @@ public class ItemController {
 		} 
 		
 		return new ResponseEntity<>("insert", HttpStatus.CREATED);
-	}
-	
-	@GetMapping("/{ino}")
-	public ResponseEntity<?> get(@PathVariable("ino") Long ino) {
-		ItemDto dto = itemService.get(ino);
-		
-		return new ResponseEntity<>(dto, HttpStatus.OK);
 	}
 	
 	@PatchMapping("/update")
