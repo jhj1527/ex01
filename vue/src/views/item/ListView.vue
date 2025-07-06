@@ -16,6 +16,12 @@
           type: "",
           keyword: "",
         },
+        input: {
+          ino: "", 
+          id: "",
+          amount: "",
+          price: "",
+        },
       };
     },
     mounted() {
@@ -26,13 +32,14 @@
       priceFormat() {
         return price => price ? price.toLocaleString() : '';
       },
+      disCountPrice() {
+        return i => this.result[i].price * (100 - this.result[i].discount) / 100;
+      },
     },  
     methods: {
       async getList() {
         try {
           const res = await commonApi('/api/item/list', "get", this.param);
-
-          console.log(res.data.list);
 
           this.result = res.data.list;
           this.page = res.data.page;
@@ -43,6 +50,8 @@
           for (let i = this.page.startPage; i <= this.page.endPage; i++) {
             this.numbers.push(i);
           }
+
+          // console.log(this.result);
 
         } catch (e) {
           console.log('Error fetching item list:', e);
@@ -85,6 +94,22 @@
       },
       insert(){
         this.$router.push("/item/insert");
+      },
+      async addCart(item, i) {
+        this.input.ino = item.ino;
+        this.input.id = this.member.id;
+        this.input.price = this.disCountPrice(i);
+        this.input.amount = 1;
+
+        console.log(this.input);
+
+        const res = await commonApi("/api/cart/insert", "post", this.input);
+
+        console.log(res);
+
+        if (res.status === 201 || res.status === 200) {
+            alert("insert");
+        } 
       },
     },
   };
@@ -155,7 +180,7 @@
                   <!-- Product price-->
                    <div v-if="item.discount > 0">
                      <span class="text-muted text-decoration-line-through" v-html="priceFormat(item.price)"></span>
-                     -> {{ priceFormat(item.price * (100 - item.discount) / 100) }}
+                      -> {{ priceFormat(disCountPrice(i)) }}
                    </div>
                     <div v-else>
                       <span class="text-muted" v-html="priceFormat(item.price)"></span>
@@ -171,7 +196,7 @@
               </div>
               <div v-if="member.id !== null" class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                 <div class="text-center">
-                  <button class="btn btn-outline-dark mt-auto">Add to cart</button>
+                  <button @click="addCart(item, i)" class="btn btn-outline-dark mt-auto">Add to cart</button>
                 </div>
               </div>
             </div>

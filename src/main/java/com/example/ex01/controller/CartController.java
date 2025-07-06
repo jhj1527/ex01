@@ -1,10 +1,15 @@
 package com.example.ex01.controller;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -36,11 +41,26 @@ public class CartController {
 	
 	@GetMapping("/list")
 	public ResponseEntity<?> getList(@RequestParam("id") String id) {
-		return ResponseEntity.ok(cartService.getList(id));
+		int totalPrice = 0;
+		
+		List<CartDto> list = cartService.getList(id);
+		
+		if (list != null && !list.isEmpty()) {
+			totalPrice = Arrays.stream(cartService.totalPrice(id)).sum();
+		}
+		
+//		log.info("totalPrice : " + totalPrice);
+		
+		Map<String, Object> map = new HashMap<>();
+		
+		map.put("list", list);
+		map.put("totalPrice", totalPrice);
+		
+		return ResponseEntity.ok(list);
 	}
 	
 	@PostMapping("/insert")
-	public ResponseEntity<?> insert(@RequestBody CartDto dto, HttpServletResponse response) {
+	public ResponseEntity<?> insert(@RequestBody CartDto dto, HttpServletResponse response) throws URISyntaxException {
 		try {
 			cartService.insert(dto);
 			
@@ -49,42 +69,77 @@ public class CartController {
 		} catch (ApiException e) {
 			log.error(e.getMessage());
 			
-			Map<String, Object> map = new HashMap<>();
-			map.put("message", e.getMessage());
+			HttpHeaders httpHeaders = new HttpHeaders();
+	        httpHeaders.setLocation(new URI("/api/cart/update"));
 			
-			return new ResponseEntity<>(map, e.getError().getType());
-			
+	        return new ResponseEntity<>(httpHeaders, HttpStatus.PERMANENT_REDIRECT);
 		} catch (Exception e) {
 			e.printStackTrace();
 			
-			Map<String, Object> map = new HashMap<>();
-			map.put("message", e.getMessage());
-			
-			return ResponseEntity.internalServerError().body(map);
+			return errorResponse(e);
 		}
 	}
 	
-	@PatchMapping("/update")
-	public ResponseEntity<?> update(@RequestBody List<CartDto> list) {
+	@PostMapping("/update")
+	public ResponseEntity<?> update(@RequestBody CartDto dto) {
 		try {
-			list.stream().forEach(c -> {
-				log.info(c.toString());
-			});
+			cartService.update(dto);
 			
-			cartService.update(list);
+			return new ResponseEntity<>("update", HttpStatus.OK);
 			
-			return ResponseEntity.ok("insert");
+		} catch (ApiException e) {
+			return ApiErrorResponse(e);
 			
 		} catch (Exception e) {
-			Map<String, Object> map = new HashMap<>();
-			map.put("message", e.getMessage());
+			return errorResponse(e);
+		}
+	}
+	
+	@PatchMapping("/updateList")
+	public ResponseEntity<?> updateList(@RequestBody List<CartDto> list) {
+		try {
+//			list.stream().forEach(c -> {
+//				log.info(c.toString());
+//			});
 			
-			return ResponseEntity.internalServerError().body(map);
+			cartService.updateList(list);
+			
+			return new ResponseEntity<>("updateList", HttpStatus.OK);
+			
+		} catch (ApiException e) {
+			return ApiErrorResponse(e);
+			
+		} catch (Exception e) {
+			return errorResponse(e);
 		}
 	}
 	
 	@DeleteMapping("/delete")
 	public ResponseEntity<?> delete(@RequestParam("cno") Long cno) {
-		return ResponseEntity.ok("a");
+		try {
+			cartService.delete(cno);
+			
+			return new ResponseEntity<>("delete", HttpStatus.OK);
+			
+		} catch (ApiException e) {
+			return ApiErrorResponse(e);
+			
+		} catch (Exception e) {
+			return errorResponse(e);
+		}
+	}
+	
+	public ResponseEntity<?> ApiErrorResponse(ApiException e) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("message", e.getError().getMessage());
+		
+		return ResponseEntity.internalServerError().body(map);
+	}
+	
+	public ResponseEntity<?> errorResponse(Exception e) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("message", e.getMessage());
+		
+		return ResponseEntity.internalServerError().body(map);
 	}
 }

@@ -75,9 +75,10 @@ const router = createRouter({
       props : true,
     },
     {
-      path: "/item/cart",
-      name: "itemCart",
-      component: () => import('../views/item/CartView.vue'),
+      path: "/cart/list",
+      name: "cartList",
+      component: () => import('../views/cart/ListView.vue'),
+      props : true,
     },
   ],
 });

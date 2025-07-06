@@ -11,7 +11,8 @@ public enum ErrorCode {
 	DUPLICATION(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.value()),
 	MEMBER_REQUIRED(HttpStatus.BAD_REQUEST, HttpServletResponse.SC_BAD_REQUEST),
 	BAD_REQUEST(HttpStatus.BAD_REQUEST, HttpServletResponse.SC_BAD_REQUEST),
-	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, HttpServletResponse.SC_INTERNAL_SERVER_ERROR),
+	EXCEED_CART(HttpStatus.BAD_REQUEST, HttpServletResponse.SC_BAD_REQUEST, "수량초과");
 	
 	private HttpStatus type;
 	private int code;

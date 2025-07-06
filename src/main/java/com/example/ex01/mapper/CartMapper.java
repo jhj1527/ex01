@@ -11,13 +11,17 @@ import com.example.ex01.dto.CartDto;
 public interface CartMapper {
 	List<CartDto> getList(String id);
 	
-	int sumPrice(String id);
+	CartDto get(CartDto dto);
 	
 	int getCount(CartDto dto);
 	
+	int[] totalPrice(String id);
+	
 	void insert(CartDto dto);
 	
-	void update(List<CartDto> list);
+	void update(CartDto dto);
+	
+	void updateList(List<CartDto> list);
 	
 	void delete(Long cno);
 }

@@ -31,8 +31,13 @@ public class CartServiceImpl implements CartService {
 	}
 	
 	@Override
-	public int sumPrice(String id) {
-		return cartMapper.sumPrice(id);
+	public CartDto get(CartDto dto) {
+		return cartMapper.get(dto);
+	}
+	
+	@Override
+	public int[] totalPrice(String id) {
+		return cartMapper.totalPrice(id);
 	}
 	
 	@Override
@@ -42,27 +47,50 @@ public class CartServiceImpl implements CartService {
 	
 	@Transactional
 	@Override
-	public void insert(CartDto dto) throws Exception{
+	public void insert(CartDto dto) throws Exception {
 		int cnt = cartMapper.getCount(dto);
 		
-		if (cnt == 1) {
+		if (cnt != 0) {
 			throw new ApiException(ErrorCode.DUPLICATION, "카트 중복");
 		}
 		
 		cartMapper.insert(dto);
 	}
-
+	
 	@Transactional
 	@Override
-	public void update(List<CartDto> list) {
-		try {
-			cartMapper.update(list);
+	public void update(CartDto dto) throws Exception {
+		CartDto cartDto = get(dto);
+		
+		if (cartDto != null) {
+			if (cartDto.getAmount() + dto.getAmount() > 10) {
+				throw new ApiException(ErrorCode.EXCEED_CART);
+			}
 			
-		} catch (Exception e) {
-			e.printStackTrace();
-			
-			throw new ApiException(ErrorCode.INTERNAL_SERVER_ERROR , "시스템 오류");
+			dto.setCno(cartDto.getCno());
+			cartMapper.update(dto);
 		}
 	}
 
+	@Transactional
+	@Override
+	public void updateList(List<CartDto> list) throws Exception {
+		try {
+			cartMapper.updateList(list);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Transactional
+	@Override
+	public void delete(Long cno) throws Exception {
+		try {
+			cartMapper.delete(cno);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

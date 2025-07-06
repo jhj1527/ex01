@@ -28,6 +28,11 @@
       priceFormat() {
         return price => price ? price.toLocaleString() : '';
       },
+      realPrice() {
+        return this.result.discount > 0 ? 
+        this.result.price * (100 - this.result.discount) / 100 * this.input.amount 
+        : this.result.price * this.input.amount;
+      },
     },
     beforeDestroy() {
       // 메인 이미지 URL 메모리에서 제거
@@ -77,38 +82,26 @@
           console.log(e);
         }
       },
-      plus() {
-        this.result.price = this.result.price / this.input.amount
+      increase() {
         this.input.amount++;
-        if (this.input.amount > 10) {
-          this.input.amount = 10;
-        }
-        this.result.price = this.result.price * this.input.amount;
+        if (this.input.amount > 10) this.input.amount = 10;
       },
-      minus() {
-        this.result.price = this.result.price / this.input.amount
+      decrease() {
         this.input.amount--;
-        if (this.input.amount < 1) {
-          this.input.amount = 1;
-        }
-        this.result.price = this.result.price * this.input.amount;
+        if (this.input.amount < 1) this.input.amount = 1;
       },
-      addCart() {
-        // if (this.member.id === null || this.member.id === "") {
-        //   alert("로그인 후 이용해주세요.");
-        //   this.$router.push("/member/login");
-        //   return;
-        // }
-
+      async addCart() {
         this.input.ino = this.ino;
         this.input.id = this.member.id;
-        this.input.price = this.result.price;
-
-        if (this.result.discount > 0) {
-          this.input.price = this.result.price * (100 - this.result.discount) / 100;
-        }
+        this.input.price = this.realPrice;
 
         console.log(this.input);
+
+        const res = await commonApi("/api/cart/insert", "post", this.input);
+
+        if (res.status === 201 || res.status === 200) {
+            alert("insert");
+        }
       },
       imageChange(e, i) {
         this.$refs.mainImage.src = this.$refs.subImage[i].src;
@@ -154,7 +147,7 @@
           class="img-fluid mb-3"
           style="max-height: 350px; object-fit: contain;"
         />
-        <div v-else class="bg-light d-flex align-items-center justify-content-center mb-3" style="width:100%;height:350px;">
+        <div v-else class="bg-light d-flex align-items-center justify-content-center mb-3" style="width:100%; height:350px;">
           <span class="text-muted">이미지가 없습니다</span>
         </div>
         <!-- Thumbnails -->
@@ -178,8 +171,7 @@
         <h2 class="mb-3">{{result.name}}</h2>
         <p class="text-muted">카테고리: {{result.category}}</p>
         
-        <h4 v-if="result.discount > 0" class="text-primary mb-3">{{ priceFormat(result.price * (100 - result.discount) / 100) }}</h4>
-        <h4 v-else class="text-primary mb-3">{{ priceFormat(result.price) }}</h4>
+        <h4 class="text-primary mb-3">{{ priceFormat(realPrice) }}</h4>
         <!-- <p>
           이 상품은 최신 기술이 적용된 고품질 제품입니다. 다양한 기능과 세련된 디자인으로 일상에 편리함을 더해줍니다.
         </p>
@@ -190,23 +182,15 @@
         </ul> -->
         <div class="mb-3 d-flex align-items-center">
           <label for="amount" class="form-label me-3 mb-0">수량</label>
-          <button
-            type="button"
-            class="btn btn-outline-secondary"
-            @click="minus"
-            aria-label="수량 감소"
-          >-</button>
+          <button type="button" class="btn btn-outline-secondary" @click="decrease">
+            <i class="bi bi-dash"></i>
+          </button>
           <span class="mx-3">{{ input.amount }}</span>
-          <button
-            type="button"
-            class="btn btn-outline-secondary"
-            @click="plus"
-            aria-label="수량 증가"
-          >+</button>
+          <button type="button" class="btn btn-outline-secondary" @click="increase">
+            <i class="bi bi-plus"></i>
+          </button>
         </div>
-        <button class="btn btn-primary" @click="addCart">
-          장바구니 담기
-        </button>
+        <button class="btn btn-primary" @click="addCart">장바구니 담기</button>
         <div v-if="this.member.id.startsWith('admin')" class="mt-3 d-flex gap-2">
           <button class="btn btn-warning" @click="updateItem">상품 수정</button>
           <button class="btn btn-danger" @click="deleteItem">상품 삭제</button>

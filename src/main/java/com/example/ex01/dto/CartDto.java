@@ -1,5 +1,7 @@
 package com.example.ex01.dto;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -7,7 +9,8 @@ public class CartDto {
 	private Long cno;
 	private String id;
 	private Long ino;
+	private String name;
+	private int price;
 	private int amount;
-	private int totalPrice;
-	private ItemDto itemDto;
+	private List<AttachDto> attachList;
 }
