@@ -15,9 +15,7 @@
           ino: "",
           price: 0,
         },
-        param: {
-          id : ""
-        },
+        param: {},
         totalPrice: 0,
         charge : 0,
       };
@@ -67,6 +65,7 @@
     },
     methods : {
       async get(id) {
+        this.param = {};
         this.param.id = id;
         const res = await commonApi("/api/cart/list", 'GET', this.param);
 
@@ -77,8 +76,22 @@
 
         this.checkedArr = this.result.map(item => item.cno);
       },
-      removeItem(idx) {
+      async removeItem(item, idx) {
+        this.param = {};
+        this.param.cno = item.cno;
         
+        const res = await commonApi("/api/cart/delete", 'delete', this.param);
+        if (res.status === 200) {
+          alert("delete");
+          
+          const index = this.checkedArr.findIndex(i => i === item.cno);
+          if (index > -1) {
+            this.checkedArr.splice(index, 1);
+          }
+  
+          this.result.splice(idx, 1);
+          // this.result = this.result.filter(c => c.cno !== item.cno);
+        }
       },
       amountChange(e, idx) {
         if (e.target.value > 10) {
@@ -103,17 +116,6 @@
       }
     },
   }
-  // const coupon = ref('')
-
-  // const subtotal = computed(() =>
-  //   cartItems.value.reduce((sum, item) => sum + item.price * item.qty, 0)
-  // )
-  // const shipping = 3.0
-  // const total = computed(() => subtotal.value + shipping)
-
-  // function removeItem(idx) {
-  //   cartItems.value.splice(idx, 1)
-  // }
 </script>
 
 <template>
@@ -147,15 +149,13 @@
                 <img 
                   v-if="item.attachList.length > 0"  
                   :src="`http://localhost:8081/api/file/getFile?filePath=${item.attachList[0].filePath}&fileName=${item.attachList[0].fileName}`" 
-                  alt="" class="rounded" style="width:70px; height:70px; object-fit:cover;" >
-                </img>
+                  alt="" class="rounded" style="width:70px; height:70px; object-fit:cover;" />
                 <img v-else 
                   src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" 
-                  alt="" class="rounded" style="width:70px; height:70px; object-fit:cover;">
-                </img>
+                  alt="" class="rounded" style="width:70px; height:70px; object-fit:cover;" />
               </td>
               <td>{{ item.name }}</td>
-              <td>{{ item.price }}</td>
+              <td>{{ priceFormat(item.price) }}</td>
               <td>
                 <div class="d-flex align-items-center">
                   <button @click="decrease(idx)" class="btn btn-outline-secondary btn-sm rounded-circle me-2">
@@ -168,10 +168,10 @@
                   </button>
                 </div>
               </td>
-              <td>{{ (item.price * item.amount) }}</td>
+              <td>{{ priceFormat(item.price * item.amount) }}</td>
               <td>
                 <button class="btn btn-outline-danger btn-sm rounded-circle"
-                  @click="removeItem(idx)">
+                  @click="removeItem(item, idx)">
                   <i class="bi bi-x"></i>
                 </button>
               </td>
@@ -196,18 +196,18 @@
           <h3 class="fw-bold mb-4"><span class="fw-bolder">Cart</span> Total</h3>
           <div class="d-flex justify-content-between mb-2">
             <span>total:</span>
-            <span>{{ total }}</span>
+            <span>{{ priceFormat(total) }}</span>
           </div>
           <div class="mb-2">
             <div class="d-flex justify-content-between">
               <span>fee</span>
-              <span>Flat rate: {{ fee }}</span>
+              <span>Flat rate: {{ priceFormat(fee) }}</span>
             </div>
           </div>
           <hr>
           <div class="d-flex justify-content-between mb-4">
             <span class="fw-bold">Total</span>
-            <span class="fw-bold">{{total + fee}}</span>
+            <span class="fw-bold">{{priceFormat(total + fee)}}</span>
           </div>
           <button @click="checkOut" class="btn btn-outline-warning w-100 py-2 fw-bold">
             PROCEED CHECKOUT
