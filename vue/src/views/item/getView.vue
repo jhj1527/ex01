@@ -7,8 +7,8 @@
     name: 'GetView',
     data() {
       return {
-        // mainImage: '',
-        images: [],
+        mainSrc: {},
+        subSrc: {},
         result : {},
         idx: 0,
         active : "",
@@ -33,14 +33,20 @@
         this.result.price * (100 - this.result.discount) / 100 * this.input.amount 
         : this.result.price * this.input.amount;
       },
+      increase() {
+        return value => this.input.amount < 10 ? this.input.amount++ : this.input.amount = 10;
+      },
+      decrease() {
+        return value => this.input.amount > 1 ? this.input.amount-- : this.input.amount = 1;
+      },
     },
     beforeDestroy() {
       // 메인 이미지 URL 메모리에서 제거
       URL.revokeObjectURL(this.$refs.mainImage.src);
       // 모든 서브 이미지 URL 메모리에서 제거
-      for (let i = 0; i < this.result.attachList.length; i++) {
+      this.result.attachList.forEach((item, i) => {
         URL.revokeObjectURL(this.$refs.subImage[i].src);
-      }
+      });
     },
     methods: {
       async get(ino) {
@@ -50,8 +56,10 @@
           console.log(res);
 
           if (res.status == 200) {
-             this.result = res.data;
-            //  this.getImage(this.result, 'main');
+              this.result = res.data;
+              this.result.attachList.forEach((item, i) => {
+                this.getImage(item, i);
+              });
           }
           
         } catch (e) {
@@ -70,26 +78,27 @@
           // console.log(res.data);
           // url 생성
           const url = URL.createObjectURL(res.data);
-
-          if (i === undefined) {
+          
+          if (i === 0) {
+            this.mainSrc.url = url;
             this.$refs.mainImage.src = url;
+          } 
 
-          } else {
-            this.$refs.subImage[i].src = url;
-          }
+          this.subSrc.url = url;
+          this.$refs.subImage[i].src = url;
 
         } catch (e) {
           console.log(e);
         }
       },
-      increase() {
-        this.input.amount++;
-        if (this.input.amount > 10) this.input.amount = 10;
-      },
-      decrease() {
-        this.input.amount--;
-        if (this.input.amount < 1) this.input.amount = 1;
-      },
+      // increase() {
+      //   this.input.amount++;
+      //   if (this.input.amount > 10) this.input.amount = 10;
+      // },
+      // decrease() {
+      //   this.input.amount--;
+      //   if (this.input.amount < 1) this.input.amount = 1;
+      // },
       async addCart() {
         this.input.ino = this.ino;
         this.input.id = this.member.id;
@@ -139,9 +148,10 @@
       <!-- Product Images -->
       <div class="col-md-6 d-flex flex-column align-items-center">
         <!-- Main Image -->
+         <!-- :src="`http://localhost:8081/api/file/getFile?filePath=${result.attachList[0].filePath}&fileName=${result.attachList[0].fileName}`" -->
         <img
           v-if="result.attachList && result.attachList.length"
-          :src="getImage(result.attachList[0])"
+          :src="mainSrc"
           ref="mainImage"
           alt="메인 이미지"
           class="img-fluid mb-3"
@@ -151,11 +161,12 @@
           <span class="text-muted">이미지가 없습니다</span>
         </div>
         <!-- Thumbnails -->
-        <div v-if="result.attachList && result.attachList.length > 1" class="d-flex gap-2">
+        <div v-if="result.attachList && result.attachList.length > 0" class="d-flex gap-2">
+          <!-- :src="`http://localhost:8081/api/file/getFile?filePath=${item.filePath}&fileName=${item.fileName}`" -->
           <img
-            v-for="(image, i) in result.attachList"
-            :key="image.attachId"
-            :src="getImage(image, i)"
+            v-for="(item, i) in result.attachList"
+            :key="item.attachId"
+            :src="subSrc"
             ref="subImage"
             alt="썸네일"
             :index="i"

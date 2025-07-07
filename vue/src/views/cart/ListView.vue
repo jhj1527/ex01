@@ -18,6 +18,7 @@
         param: {},
         totalPrice: 0,
         charge : 0,
+        mainSrc : [],
       };
     },
     // props: {
@@ -29,6 +30,11 @@
     beforeRouteLeave(to, from, next) {
       // 뒤로가기 시 실행될 로직
       this.allUpdate();
+
+      // 모든 이미지 URL 메모리에서 제거
+      this.mainSrc.forEach((item, i) => {
+        URL.revokeObjectURL(item);
+      });
 
       next();
     },
@@ -70,11 +76,32 @@
         const res = await commonApi("/api/cart/list", 'GET', this.param);
 
         this.result = res.data;
-        this.result.forEach((data, i) => {
-          // data.check = true;
+        // console.log(this.result);
+
+        this.result.forEach((item, i) => {
+          if (item.attachList.length > 0) {
+            this.getImage(item.attachList[0], i);
+          }
         });
 
         this.checkedArr = this.result.map(item => item.cno);
+      },
+      async getImage(image, i) {
+        try {
+          this.param = {};
+          this.param.filePath = image.filePath;
+          this.param.fileName = image.fileName;
+
+          const res = await commonApi("/api/file/getFile", "GET", this.param);
+          // console.log(res.data);
+          
+          const url = URL.createObjectURL(res.data); // url 생성
+          this.mainSrc.push(url);
+          this.$refs.mainImage[this.mainSrc.length-1].src = url;
+
+        } catch (e) {
+          console.log(e);
+        }
       },
       async removeItem(item, idx) {
         this.param = {};
@@ -146,9 +173,11 @@
                 <label :for="item.name"></label>
               </td>
               <td>
+                <!-- :src="`http://localhost:8081/api/file/getFile?filePath=${item.attachList[0].filePath}&fileName=${item.attachList[0].fileName}`" -->
                 <img 
-                  v-if="item.attachList.length > 0"  
-                  :src="`http://localhost:8081/api/file/getFile?filePath=${item.attachList[0].filePath}&fileName=${item.attachList[0].fileName}`" 
+                  v-if="item.attachList.length > 0"
+                  :src="mainSrc"
+                  ref="mainImage"  
                   alt="" class="rounded" style="width:70px; height:70px; object-fit:cover;" />
                 <img v-else 
                   src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" 
