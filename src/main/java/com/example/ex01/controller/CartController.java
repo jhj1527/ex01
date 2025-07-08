@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -57,6 +56,15 @@ public class CartController {
 		map.put("totalPrice", totalPrice);
 		
 		return ResponseEntity.ok(list);
+	}
+	
+	@GetMapping("/checkList")
+	public ResponseEntity<?> getCheckedList(@RequestParam("checkList") List<Integer> checkList, 
+			@RequestParam("id") String id) {
+		
+		List<CartDto> list = cartService.getCheckList(checkList);
+		
+		return new ResponseEntity<>("ok", HttpStatus.OK);
 	}
 	
 	@PostMapping("/insert")

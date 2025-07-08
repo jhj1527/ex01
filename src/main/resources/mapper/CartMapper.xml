@@ -55,7 +55,21 @@
 		]]>
 	</select>
 	
-	<select id="get" resultType="com.example.ex01.dto.CartDto">
+	<select id="getCheckList" resultType="com.example.ex01.dto.CartDto">
+		<![CDATA[
+			select c.cno, c.ino, c.id, c.amount,
+			CASE WHEN i.discount > 0 THEN (i.price * (100 - i.discount) / 100)
+			ELSE i.price
+			END as price,
+			i.name
+			FROM cart c, item i
+			where 1 = 1
+			AND c.ino = i.ino
+			and cno in(1, 2)
+        ]]>
+	</select>
+	
+	<select id="getByino" resultType="com.example.ex01.dto.CartDto">
 		<![CDATA[
 			select cno, ino, id, amount
 			FROM cart 

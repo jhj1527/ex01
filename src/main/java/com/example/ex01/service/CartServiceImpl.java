@@ -1,5 +1,6 @@
 package com.example.ex01.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,8 +32,19 @@ public class CartServiceImpl implements CartService {
 	}
 	
 	@Override
+	public List<CartDto> getCheckList(List<Integer> list) {
+		List<CartDto> cartlist = new ArrayList<>();
+		
+		list.forEach(num -> {
+			
+		});
+		
+		return null;
+	}
+	
+	@Override
 	public CartDto get(CartDto dto) {
-		return cartMapper.get(dto);
+		return cartMapper.getByino(dto);
 	}
 	
 	@Override
@@ -93,4 +105,5 @@ public class CartServiceImpl implements CartService {
 			e.printStackTrace();
 		}
 	}
+
 }

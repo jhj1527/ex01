@@ -7,6 +7,8 @@ import com.example.ex01.dto.CartDto;
 public interface CartService {
 	List<CartDto> getList(String id);
 	
+	List<CartDto> getCheckList(List<Integer> list);
+	
 	CartDto get(CartDto dto);
 	
 	int getCount(CartDto dto);
@@ -20,4 +22,5 @@ public interface CartService {
 	void updateList(List<CartDto> list) throws Exception;
 	
 	void delete(Long cno) throws Exception;
+
 }
