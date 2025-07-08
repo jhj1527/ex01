@@ -135,11 +135,15 @@
         console.log(res);
       },
       checkOut() {
-        let res = [...this.result];
-        res = res.filter(item => this.checkedArr.some(cno => item.cno === cno));
+        // 얕은 복사(스프레드 연산자)시 복사본 수정시 원본도 수정 되므로 깊은복사 
+        let res = {"list" : JSON.parse(JSON.stringify(this.result))};
+        res = res.list.filter(item => this.checkedArr.some(cno => item.cno === cno))
+        .filter(item => delete item.attachList);
+        
+        res.charge = this.fee;
+        res.totalPrice = this.total;
         console.log(res);
-
-        this.totalPrice = this.total + this.fee;
+        // this.totalPrice = this.total + this.fee;
       }
     },
   }
