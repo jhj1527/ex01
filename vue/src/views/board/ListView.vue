@@ -30,10 +30,9 @@
 
   const pageList = async () => {
     try {
+      // const url = "/api/board/list?" + new URLSearchParams(param.value).toString();
+      result.value = await commonApi("/api/board/list", "get", param.value);
       
-      const url = "/api/board/list?" + new URLSearchParams(param.value).toString();
-
-      result.value = await commonApi(url, "get");
       param.value = result.value.data.page.criteriaDto;
       page.value = result.value.data.page;
       result.value = result.value.data.list;
@@ -84,13 +83,13 @@
         </thead>
         <tbody>
           <tr v-for="item in result" :key="item.bno">
-            <td><RouterLink :to="`/board/get/${item.bno}`">{{ item.bno }}</RouterLink></td>
+            <td><RouterLink :to="`/board/get/${item.bno}`" >{{ item.bno }}</RouterLink></td>
             <td>{{ item.title }}[{{ item.replyCount }}]</td>
-            <td>{{ item.content }}</td>
-            <td>{{ item.id }}</td>
-            <td>{{ item.regDate }}</td>
-            <td>{{ item.updateDate }}</td>
-            <td>{{ item.viewCount }}</td>
+            <td v-html="item.content"></td>
+            <td v-html="item.id"></td>
+            <td v-html="item.regDate"></td>
+            <td v-html="item.updateDate"></td>
+            <td v-html="item.viewCount"></td>
           </tr>
         </tbody>
       </table>

@@ -11,6 +11,7 @@
     try {
       const instance = axios.create({
         baseURL : "http://localhost:8081",
+        // baseURL : "http://58.236.44.179:8081",
       });
       const header = {
         headers: {
@@ -30,11 +31,19 @@
         // 서버에서 이미지 데이터를 blob 형태로 받는다.
         instance.defaults.responseType = "blob";
       }
+
+      instance.defaults.paramsSerializer = (param) => {
+          const params = new URLSearchParams();
+          for (const key in param) {
+              params.append(key, param[key]);
+          }
+
+          return params.toString();
+      }
       
       switch (type.toUpperCase()) {
         case "GET":
-          const params = data === undefined ? {} : data;
-          res.value = await instance.get(url, {params: params});
+          res.value = await instance.get(url, {params: data === undefined ? {} : data});
           // res.value = await instance.get(url);
           break;
 
@@ -52,7 +61,8 @@
           break;
 
         case "DELETE":
-          res.value = await instance.delete(url);
+          res.value = await instance.delete(url, {params: data === undefined ? {} : data});
+          // res.value = await instance.delete(url);
           break;
           
         default:

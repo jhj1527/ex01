@@ -16,6 +16,12 @@
           type: "",
           keyword: "",
         },
+        input: {
+          ino: "", 
+          id: "",
+          amount: "",
+          price: "",
+        },
       };
     },
     mounted() {
@@ -24,7 +30,10 @@
     computed: {
       ...mapState(useStore, ['member']),
       priceFormat() {
-        return price => price.toLocaleString();
+        return price => price ? price.toLocaleString() : '';
+      },
+      disCountPrice() {
+        return i => this.result[i].price * (100 - this.result[i].discount) / 100;
       },
     },  
     methods: {
@@ -42,57 +51,97 @@
             this.numbers.push(i);
           }
 
+          // console.log(this.result);
+
         } catch (e) {
           console.log('Error fetching item list:', e);
         }
       },
-      get(ino){
+      get(ino) {
         this.$router.push("/item/get/" + ino);
       },
-      
+      async getImage(filePath, fileName, i) {
+        try {
+          const params = {
+            filePath: filePath,
+            fileName: fileName
+          };
+          const res = await commonApi("/api/file/getFile", "GET", params);
+
+          console.log(res.data);
+
+          const url = URL.createObjectURL(res.data);
+          this.$refs.mainImage[0].src = url;
+
+        } catch (e) {
+          console.log(e);
+        }
+      },
+      pageClick(pageNum){
+        this.param.pageNum = pageNum;
+        this.getList();
+      },
+      search(){
+        this.param.pageNum = 1;
+        this.getList();
+      },
+      orderList(type) {
+        this.param.pageNum = 1;
+        this.param.type = type; 
+        this.param.keyword = "";
+        
+        this.getList();
+      },
+      insert(){
+        this.$router.push("/item/insert");
+      },
+      async addCart(item, i) {
+        this.input.ino = item.ino;
+        this.input.id = this.member.id;
+        this.input.price = this.disCountPrice(i);
+        this.input.amount = 1;
+
+        console.log(this.input);
+
+        const res = await commonApi("/api/cart/insert", "post", this.input);
+
+        console.log(res);
+
+        if (res.status === 201 || res.status === 200) {
+            alert("insert");
+        } 
+      },
     },
   };
 </script>
 <template>
   <div class="container">
-
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div>
-        <span>총 <span style="color: #e74c3c;" v-html="page.total"></span>건</span>
+        <span>총 <span style="color: #e74c3c;" v-html="priceFormat(page.total)"></span>건</span>
+      </div>
+      <div class="button-group">
+        <button 
+        v-if="member.id !== null && member.id.startsWith('admin')" 
+        @click="insert" 
+        class="btn btn-primary me-2"> 
+        insert
+      </button>
       </div>
       <div class="d-flex align-items-center justify-content-center flex-grow-1">
-        <select class="form-select me-2" style="width: 120px;">
-          <option value="">카테고리</option>
-          <option value="electronics">전자제품</option>
-          <option value="fashion">패션</option>
-          <option value="books">도서</option>
+        <select v-model="param.type" class="form-select me-2" style="width: 120px;">
+          <option value="">전체</option>
+          <option value="fruit">과일</option>
+          <option value="vegetable">채소</option>
         </select>
-        <input type="text" class="form-control me-2" placeholder="상품명 검색" style="width: 300px;">
-        <button class="btn btn-primary">검색</button>
+        <input type="text" v-model="param.keyword" @keyup.enter="search" class="form-control me-2" placeholder="상품명 검색" style="width: 300px;">
+        <button @click="search" class="btn btn-primary">검색</button>
       </div>
 
       <div class="d-flex align-items-center" style="font-size: 0.9rem;">
-        <router-link
-          to="?sort=new"
-          class="fw-bold me-3 sort-link"
-          active-class="active"
-          exact
-        >신상품순</router-link>
-        <router-link
-          to="?sort=popular"
-          class="text-secondary me-3 sort-link"
-          active-class="active"
-        >인기상품순</router-link>
-        <router-link
-          to="?sort=low"
-          class="text-secondary me-3 sort-link"
-          active-class="active"
-        >낮은가격순</router-link>
-        <router-link
-          to="?sort=high"
-          class="text-secondary sort-link"
-          active-class="active"
-        >높은가격순</router-link>
+        <p @click="orderList('newItem')" class="fw-bold me-3 sort-link" active-class="active" style="cursor: pointer;">신상품순</p>
+        <p @click="orderList('lowPrice')" class="text-secondary me-3 sort-link" active-class="active" style="cursor: pointer;">낮은가격순</p>
+        <p @click="orderList('highPrice')" class="text-secondary sort-link" active-class="active" style="cursor: pointer;">높은가격순</p>
       </div>
     </div>
     <hr>
@@ -101,19 +150,18 @@
       <div class="container px-4 px-lg-5 mt-5">
         <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4">
           
-          <div v-for="item in result" :key="item.ino" class="col mb-5">
+          <div v-for="(item, i) in result" :key="item.ino" class="col mb-5">
             <div class="card h-100">
               <!-- Sale badge-->
               <div v-if="item.discount > 0" class="badge bg-dark text-white position-absolute" style="top: 0.5rem; right: 0.5rem">Sale
               </div>
-
               <!-- Product image-->
-              <div v-if="item.attachList.length > 0 && item.attachList[0].fileType">
-                <!-- <div v-for="(image, i) in item.attachList" :key="image.attchId">
-                  <img :src="`http://localhost:8081/api/file/getFile?filePath=${image.filePath}&fileName=${image.fileName}`" v-if="image.fileType" class="card-img-top">
-                </div> -->
-                <img :src="`http://localhost:8081/api/file/getFile?filePath=${item.attachList[0].filePath}&fileName=${item.attachList[0].fileName}`" class="card-img-top">
-              </div>
+              <img 
+                v-if="item.attachList.length > 0 && item.attachList[0].fileType"
+                :src="`http://localhost:8081/api/file/getFile?filePath=${item.attachList[0].filePath}&fileName=${item.attachList[0].fileName}`"
+                ref="mainImage" 
+                class="card-img-top"
+              >
               <img v-else class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..." />
               
               <!-- Product details-->
@@ -132,7 +180,7 @@
                   <!-- Product price-->
                    <div v-if="item.discount > 0">
                      <span class="text-muted text-decoration-line-through" v-html="priceFormat(item.price)"></span>
-                     -> {{ priceFormat(item.price * (100 - item.discount) / 100) }}
+                      -> {{ priceFormat(disCountPrice(i)) }}
                    </div>
                     <div v-else>
                       <span class="text-muted" v-html="priceFormat(item.price)"></span>
@@ -142,11 +190,13 @@
               
               <!-- Product actions-->
               <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                <div class="text-center"><a @click="get(item.ino)" class="btn btn-outline-dark mt-auto" href="#">Detail</a>
+                <div class="text-center">
+                  <button @click="get(item.ino)" class="btn btn-outline-dark mt-auto">Detail</button>
                 </div>
               </div>
               <div v-if="member.id !== null" class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="#">Add to cart</a>
+                <div class="text-center">
+                  <button @click="addCart(item, i)" class="btn btn-outline-dark mt-auto">Add to cart</button>
                 </div>
               </div>
             </div>

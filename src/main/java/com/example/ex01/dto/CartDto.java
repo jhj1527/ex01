@@ -11,13 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ItemDto {
+public class CartDto {
+	private Long cno;
+	private String id;
 	private Long ino;
-    private String name;
-    private Long price;
-    private String category;
-    private Long amount;
-    private Long discount;
-    private String content;
-    private List<AttachDto> attachList;
+	private String name;
+	private int price;
+	private int amount;
+	private List<AttachDto> attachList;
 }

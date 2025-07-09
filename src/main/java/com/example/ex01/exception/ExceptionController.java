@@ -19,13 +19,12 @@ public class ExceptionController {
 	@ExceptionHandler(ApiException.class)
 	public ResponseEntity<?> errorHandler(ApiException e, HttpServletRequest request, HttpServletResponse response) {
 		Map<String, Object> map = new HashMap<>();
-		HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-				
+		
 		map.put("type", e.getError().getType());
 		map.put("code", e.getError().getCode());
 		map.put("message", e.getError().getMessage());
 		
-		return new ResponseEntity<>(map, httpStatus);
+		return new ResponseEntity<>(map, e.getStatus());
 //		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
 	}
 }

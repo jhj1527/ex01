@@ -131,11 +131,11 @@ public class ItemServiceImpl implements ItemService {
 	@Transactional
 	public void delete(Long ino) {
 		try {
-			attachMapper.deleteAll(ino);
+			List<AttachDto> list = attachMapper.getList(ino);
 			
 			itemMapper.delete(ino);
 			
-			List<AttachDto> list = attachMapper.getList(ino);
+			attachMapper.deleteAll(ino);
 			
 			deleteFiles(list);
             
@@ -149,9 +149,11 @@ public class ItemServiceImpl implements ItemService {
 
         if (list == null || list.isEmpty()) return;
         
+        String uploadFolder = "D:\\upload";
+        
         list.stream().forEach(dto -> {
         	try {
-                Path path = Paths.get("D:\\upload\\" + dto.getFilePath().trim() + "\\" 
+                Path path = Paths.get(uploadFolder + "\\" + dto.getFilePath().trim() + "\\" 
                 		+ URLDecoder.decode(dto.getFileName(), "UTF-8"));
 
                 Files.deleteIfExists(path);
@@ -163,7 +165,7 @@ public class ItemServiceImpl implements ItemService {
                 }
                 
             }  catch (Exception e) {
-                ExceptionHandeler(e);
+            	throw new ApiException(ErrorCode.INTERNAL_SERVER_ERROR , "시스템 오류");
             }
         });
     }

@@ -46,7 +46,7 @@ public class DatabaseConfig {
 
 //		hikariConfig.setDriverClassName("net.sf.log4jdbc.sql.jdbcapi.DriverSpy");
 //		hikariConfig.setJdbcUrl("jdbc:log4jdbc:oracle:thin:@localhost:1521:xe");
-//		hikariConfig.setUsername("board");
+//		hikariConfig.setUsername("ex01");
 //		hikariConfig.setPassword("1234");
 		
 		return hikariConfig;

@@ -68,6 +68,24 @@ const router = createRouter({
       component: () => import('../views/item/getView.vue'),
       props : true,
     },
+    {
+      path: "/item/update/:ino",
+      name: "itemUpdate",
+      component: () => import('../views/item/UpdateView.vue'),
+      props : true,
+    },
+    {
+      path: "/cart/list",
+      name: "cartList",
+      component: () => import('../views/cart/ListView.vue'),
+      props : true,
+    },
+    {
+      path: "/order/insert",
+      name: "orderInsert",
+      component: () => import('../views/order/insertView.vue'),
+      // props : true,
+    },
   ],
 });
 

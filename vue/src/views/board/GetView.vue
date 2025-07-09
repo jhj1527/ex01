@@ -1,8 +1,7 @@
 <script>
-  import router from '@/router';
   import { commonApi } from '@/service/common';
   import { useStore } from '@/stores/store';
-  import { mapState, mapStores, storeToRefs } from 'pinia';
+  import { mapState, mapStores } from 'pinia';
   import ReplyView from '../reply/ReplyView.vue';
 
   export default {

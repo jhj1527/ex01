@@ -8,16 +8,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class ItemDto {
+public class OrderItemDto {
+	private Long oino;
+	private String orderId;
 	private Long ino;
-    private String name;
-    private Long price;
-    private String category;
-    private Long amount;
-    private Long discount;
-    private String content;
-    private List<AttachDto> attachList;
+	private String id;
+	private int amount;
+	private int price;
+//	private int discount;
+	private AttachDto dto;
 }
