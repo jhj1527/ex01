@@ -7,7 +7,7 @@ import com.example.ex01.dto.CartDto;
 public interface CartService {
 	List<CartDto> getList(String id);
 	
-	List<CartDto> getCheckList(List<Integer> list);
+	List<CartDto> getCheckList(int[] checkArr);
 	
 	CartDto get(CartDto dto);
 	

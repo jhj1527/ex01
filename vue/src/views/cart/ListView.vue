@@ -4,7 +4,7 @@
   import { mapState } from 'pinia';
 
   export default {
-    name : "getView",
+    name : "ListView",
     data() {
       return {
         result: [],
@@ -29,7 +29,9 @@
     },
     beforeRouteLeave(to, from, next) {
       // 뒤로가기 시 실행될 로직
-      this.allUpdate();
+      if (this.result && this.result.length > 0) {
+        this.allUpdate();
+      }
 
       // 모든 이미지 URL 메모리에서 제거
       this.mainSrc.forEach((item, i) => {
@@ -40,9 +42,9 @@
     },
 
     computed: {
-      ...mapState(useStore, ["member"]),
+      ...mapState(useStore, ["member", "cart", "checkArr"]),
       priceFormat() {
-        return price => price ? price.toLocaleString() : '';
+        return price => price > 0 ? price.toLocaleString() : 0;
       },
       increase() {
         return idx => this.result[idx].amount < 10 ? this.result[idx].amount++ : this.result[idx].amount = 10;
@@ -59,14 +61,14 @@
         },
       },
       total() {
-        const res = [...this.result];
-
-        return res
+        // const res = [...this.result];
+        
+        return this.result
         .filter(item => this.checkedArr.includes(item.cno))
-        .reduce((sum, item) => sum + item.price * item.amount, 0);
+        .reduce((sum, item) => sum + (item.price * item.amount), 0);
       },
       fee() {
-        return this.total >= 30000 ? 0 : 3000;
+        return this.total >= 30000 || this.total === 0 ? 0 : 3000;
       },
     },
     methods : {
@@ -134,7 +136,7 @@
 
         console.log(res);
       },
-      checkOut() {
+      async checkOut() {
         // 얕은 복사(스프레드 연산자)시 복사본 수정시 원본도 수정 되므로 깊은복사 
         let res = {"list" : JSON.parse(JSON.stringify(this.result))};
         res = res.list.filter(item => this.checkedArr.some(cno => item.cno === cno))
@@ -142,8 +144,25 @@
         
         res.charge = this.fee;
         res.totalPrice = this.total;
-        console.log(res);
-        // this.totalPrice = this.total + this.fee;
+        // console.log(res);
+
+        // this.checkArr = [];
+        this.checkArr.length = 0;
+        this.checkArr.push(this.checkedArr);
+        
+        this.param = {}
+        this.param.checkArr = this.checkArr;
+        console.log(this.param);
+
+        // const aa = await commonApi("/api/cart/checkList", "get", this.param);
+        // console.log(aa);
+
+        this.$router.push({
+          name : "orderInsert", 
+          state: {
+            checkArr : this.checkedArr,
+          },
+        });
       }
     },
   }

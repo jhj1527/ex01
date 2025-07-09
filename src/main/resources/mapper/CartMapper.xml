@@ -65,11 +65,14 @@
 			FROM cart c, item i
 			where 1 = 1
 			AND c.ino = i.ino
-			and cno in(1, 2)
+			and cno in
         ]]>
+        <foreach collection="array" open="(" separator="," close=")" item="item">
+        	#{item}
+        </foreach>
 	</select>
 	
-	<select id="getByino" resultType="com.example.ex01.dto.CartDto">
+	<select id="get" resultType="com.example.ex01.dto.CartDto">
 		<![CDATA[
 			select cno, ino, id, amount
 			FROM cart 

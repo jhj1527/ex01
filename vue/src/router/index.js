@@ -80,6 +80,12 @@ const router = createRouter({
       component: () => import('../views/cart/ListView.vue'),
       props : true,
     },
+    {
+      path: "/order/insert",
+      name: "orderInsert",
+      component: () => import('../views/order/insertView.vue'),
+      // props : true,
+    },
   ],
 });
 

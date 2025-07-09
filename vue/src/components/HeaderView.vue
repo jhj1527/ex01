@@ -43,17 +43,24 @@
         <li><RouterLink to="/" class="nav-link px-2 link-secondary">Home</RouterLink></li>
         <li><RouterLink to="/board/list" class="nav-link px-2 link-dark">Board</RouterLink></li>
         <li><RouterLink to="/member/get" class="nav-link px-2 link-dark">Info</RouterLink></li>
-        <li><RouterLink to="/item/insert" class="nav-link px-2 link-dark" >insert</RouterLink></li>
-        <li><RouterLink to="/cart/list" class="nav-link px-2 link-dark" :id="member.id">cart</RouterLink></li>
+        <li><RouterLink to="/order/insert" class="nav-link px-2 link-dark" >insert</RouterLink></li>
         <li><RouterLink to="/item/list" class="nav-link px-2 link-dark">itemList</RouterLink></li>
       </ul>
-
-      <div class="col-md-3 text-end">
-        <!-- <button type="button" class="btn btn-outline-primary me-2" @click="login">Login</button> -->
-        <button type="button" v-if="member.id === null" class="btn btn-outline-primary me-2" @click="login">Login</button>
-        <button type="button" v-else class="btn btn-outline-primary me-2" @click="logout">logout</button>
-        <button type="button" class="btn btn-primary" @click="insert">Sign-up</button>
-      </div>
+      
+      <ul class="nav col-md-3 text-end">
+        <li v-if="member.id === null" class="ms-3">
+          <RouterLink to="/member/login" style="color: black;"><i class="bi bi-person" style="font-size: 1.5rem;"></i></RouterLink>
+        </li>
+        <li v-else class="ms-3">
+          <i class="bi bi-person-check" @click="logout" style="font-size: 1.5rem; cursor: pointer;">{{ member.id }}</i>
+        </li>
+        <li v-if="member.id === null" class="ms-3">
+          <RouterLink to="/member/insert" style="color: black;"><i class="bi bi-person-add" style="font-size: 1.5rem;"></i></RouterLink>
+        </li>
+        <li class="ms-3">
+          <RouterLink to="/cart/list" :id="member.id" style="color: black;"><i class="bi bi-cart" style="font-size: 1.5rem;"></i></RouterLink>
+        </li>
+      </ul>
     </header>
   </div>
 </template>

@@ -59,12 +59,10 @@ public class CartController {
 	}
 	
 	@GetMapping("/checkList")
-	public ResponseEntity<?> getCheckedList(@RequestParam("checkList") List<Integer> checkList, 
-			@RequestParam("id") String id) {
+	public ResponseEntity<?> getCheckList(@RequestParam("checkArr") int[] checkArr) {
+		List<CartDto> list = cartService.getCheckList(checkArr);
 		
-		List<CartDto> list = cartService.getCheckList(checkList);
-		
-		return new ResponseEntity<>("ok", HttpStatus.OK);
+		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
 	
 	@PostMapping("/insert")

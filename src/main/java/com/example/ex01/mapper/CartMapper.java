@@ -11,9 +11,9 @@ import com.example.ex01.dto.CartDto;
 public interface CartMapper {
 	List<CartDto> getList(String id);
 	
-	CartDto getBycno(Long cno);
+	List<CartDto> getCheckList(int[] checkArr);
 	
-	CartDto getByino(CartDto dto);
+	CartDto get(CartDto dto);
 	
 	int getCount(CartDto dto);
 	

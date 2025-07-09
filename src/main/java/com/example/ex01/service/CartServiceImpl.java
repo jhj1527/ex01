@@ -27,24 +27,17 @@ public class CartServiceImpl implements CartService {
 	
 	@Override
 	public List<CartDto> getList(String id) {
-		List<CartDto> list = cartMapper.getList(id); 
-		return list;
+		return cartMapper.getList(id);
 	}
 	
 	@Override
-	public List<CartDto> getCheckList(List<Integer> list) {
-		List<CartDto> cartlist = new ArrayList<>();
-		
-		list.forEach(num -> {
-			
-		});
-		
-		return null;
+	public List<CartDto> getCheckList(int[] checkArr) {
+		return cartMapper.getCheckList(checkArr);
 	}
 	
 	@Override
 	public CartDto get(CartDto dto) {
-		return cartMapper.getByino(dto);
+		return cartMapper.get(dto);
 	}
 	
 	@Override

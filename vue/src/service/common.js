@@ -31,6 +31,15 @@
         // 서버에서 이미지 데이터를 blob 형태로 받는다.
         instance.defaults.responseType = "blob";
       }
+
+      instance.defaults.paramsSerializer = (param) => {
+          const params = new URLSearchParams();
+          for (const key in param) {
+              params.append(key, param[key]);
+          }
+
+          return params.toString();
+      }
       
       switch (type.toUpperCase()) {
         case "GET":

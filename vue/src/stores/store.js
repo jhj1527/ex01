@@ -13,8 +13,16 @@ export const useStore = defineStore('store', () => {
     amount : 10,
   });
 
+  const cart = ref({
+    checkedArr : [],
+  });
+
+  const checkArr = ref([]);
+
   return {  
     member,
-    pager, 
+    pager,
+    cart,
+    checkArr,
   }
 }, {persist:true});
