@@ -5,7 +5,7 @@
     
     <insert id="insert">
     	<![CDATA[
-			insert into orderitem(orderId, id, postCode, address1, address2, address3, orderPrice, charge) values
+			insert into orderitem(orderId, id, postCode, address1, address2, address3, orderPrice, charge)
 			values(#{orderId, jdbcType = VARCHAR}, #{id}, #{postCode}, #{address1}, #{address2}, #{address3},
 			#{orderPrice}, #{charge})
         ]]>
@@ -13,16 +13,19 @@
     
     <insert id="orderItemInsert">
 		<selectKey keyProperty="oino" order="BEFORE" resultType="Long">
-			select nvl(max(oino), 0) + 1 from orderitem
+			select nvl(max(oino), 0) + 1 from orderdetail
 		</selectKey>
 		
 		<![CDATA[
-			insert into orderitem(oino, orderId, ino, id, price, amount) values
+			INSERT ALL
         ]]>
 		
-        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
-			(#{oino}, #{item.orderId}, #{item.ino}, #{item.price}, #{item.amount})
+		<!-- selectkey는 한번만 호출 됨으로 foreach 안에 인덱스 값을 더해줘 채번 처리한다. -->
+        <foreach collection="list" item="item" index="index" open="" separator=" " close="SELECT * FROM DUAL">
+			into orderdetail(oino, orderId, ino, id, price, amount) values
+			(#{oino} + #{index}, #{item.orderId}, #{item.ino}, #{item.id}, #{item.price}, #{item.amount})
 		</foreach>
+		
 	</insert>
  
 </mapper>

@@ -61,12 +61,6 @@ public class OrderServiceImpl implements OrderService {
 		orderMapper.orderItemInsert(dto.getList());
 	}
 	
-	@Override
-	public void orderItemInsert(List<OrderItemDto> list) {
-		
-		
-	}
-	
 	private String craeteNum(int range) {
 		LocalDate today = LocalDate.now();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");

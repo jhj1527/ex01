@@ -1,7 +1,7 @@
 <script>
   import { commonApi } from '@/service/common';
   import { useStore } from '@/stores/store';
-  import { mapState } from 'pinia';
+  import { mapActions, mapState, mapStores } from 'pinia';
 
   export default {
     name: 'ListView',
@@ -22,13 +22,16 @@
           amount: "",
           price: "",
         },
+        store : useStore(),
       };
     },
     mounted() {
       this.getList();
     },
     computed: {
-      ...mapState(useStore, ['member']),
+      ...mapState(useStore, ["member", "cart"]),
+      ...mapActions(useStore, ["getCartCount"]),
+      // ...mapStores(useStore),
       priceFormat() {
         return price => price ? price.toLocaleString() : '';
       },
@@ -108,7 +111,9 @@
         console.log(res);
 
         if (res.status === 201 || res.status === 200) {
-            alert("insert");
+          alert("insert");
+          
+          this.store.getCartCount(this.input.id);
         } 
       },
     },

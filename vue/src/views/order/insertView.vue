@@ -19,6 +19,8 @@
     address3 : "",
     orderPrice : 0,
     charge : 0,
+    phone : "",
+    email : "",
     list : {}
   });
   let param = {};
@@ -58,12 +60,68 @@
     input.charge = input.orderPrice >= 30000 ? 0 : 3000;
   };
 
-  const order = async () => {
+  const order = async () => {    
     input.list = result.value;
-    // console.log(input);
+    let res = await commonApi("/api/order/insert", "post", input);
 
-    const res = await commonApi("/api/order/insert", "post", input);
+    if (res.status === 200 || res.status === 201) {
+      console.log(res.data);
+
+      param = {};
+      param.id = input.id;
+      res = await commonApi("/api/cart/getCount", "get", param);
+      cart.value.count = res.data;
+    }
   };
+
+  const importApi = () => {
+    // 포트원 고객사 식별코드
+    let ranNum = "";
+    let orderNum = "";
+    let today = new Date();
+    let year = today.getFullYear(); // 년도
+    let month = today.getMonth() + 1;  // 월
+    let date = today.getDate();  // 날짜
+
+    if (month < 10) {
+      month = "0" + month.toString();
+    }
+
+    today = year.toString() + month.toString() + date.toString();
+
+    for (let i = 0; i < 6; i++) {
+      ranNum = ranNum + Math.floor(Math.random() * 10);
+    }
+
+    orderNum = today + "_" + ranNum;
+
+    console.log(orderNum);
+
+    IMP.init("imp48621712");
+
+    IMP.request_pay({
+      pg : "html5_inicis", // 실제 계약 후에는 실제 상점아이디로 변경
+      pay_method : 'card', // 'card'만 지원됩니다.
+      merchant_uid: orderNum, // 상점에서 관리하는 주문 번호
+      name : 'shop',
+      amount : 100, //input.orderPrice + input.charge, // 결제창에 표시될 금액. 실제 승인이 이루어지지는 않습니다. (모바일에서는 가격이 표시되지 않음)
+      // customer_uid : 'your-customer-unique-id', // 필수 입력.
+      buyer_email : input.email,
+      buyer_name : input.id,
+      buyer_tel : input.phone,
+      // m_redirect_url : '{모바일에서 결제 완료 후 리디렉션 될 URL}' // 예: https://www.my-service.com/payments/complete/mobile
+    }, function(res) {
+      if ( res.success ) {
+        console.log(res);
+        order();
+        alert('결제성공');
+
+      } else {
+        alert("결제실패");
+        console.log(res);
+      }
+    });
+  }
 
   const PostCodeApi = () => {
     new window.daum.Postcode({
@@ -138,11 +196,11 @@
         <div class="row mb-3">
           <div class="col-md-6">
             <label class="form-label">Phone<span class="text-danger">*</span></label>
-            <input type="text" class="form-control" />
+            <input type="text" v-model="input.phone" class="form-control" />
           </div>
           <div class="col-md-6">
             <label class="form-label">Email<span class="text-danger">*</span></label>
-            <input type="email" class="form-control" />
+            <input type="email" v-model="input.email" class="form-control" />
           </div>
         </div>
       </div>
@@ -187,7 +245,7 @@
               card
             </label>
           </div> -->
-          <button type="button" @click="order" class="btn btn-success w-100 fw-bold py-2" style="font-size: 1.1rem;">
+          <button type="button" @click="importApi" class="btn btn-success w-100 fw-bold py-2" style="font-size: 1.1rem;">
             PLACE ORDER
           </button>
         </div>

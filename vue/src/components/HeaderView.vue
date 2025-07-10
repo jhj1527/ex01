@@ -22,7 +22,7 @@
 
   watch(() => member.value.id,
     (newValue, oldValue) => {
-      getCartCount(newValue);
+      store.getCartCount(newValue);
     },
     { deep: true },
   );
@@ -31,12 +31,12 @@
     return cart.value.count > 0 ? cart.value.count : "";
   });
 
-  const getCartCount = async (newValue) => {
-    param.id = newValue;
-    const res = await commonApi("/api/cart/getCount", "get", param);
-    // console.log(res);
-    cart.value.count = res.data;
-  };
+  // const getCartCount = async (newValue) => {
+  //   param.id = newValue;
+  //   const res = await commonApi("/api/cart/getCount", "get", param);
+  //   // console.log(res);
+  //   cart.value.count = res.data;
+  // };
 
   const logout = async () => {
     const res = await commonApi("/api/member/logout", "POST");

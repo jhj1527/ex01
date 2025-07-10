@@ -9,16 +9,11 @@
       return {
         result: [],
         checkedArr: [],
-        input: {
-          id: "",
-          cno: "",
-          ino: "",
-          price: 0,
-        },
         param: {},
         totalPrice: 0,
         charge : 0,
         mainSrc : [],
+        store : useStore(),
       };
     },
     // props: {
@@ -120,6 +115,8 @@
   
           this.result.splice(idx, 1);
           // this.result = this.result.filter(c => c.cno !== item.cno);
+
+          this.store.getCartCount(this.member.id);
         }
       },
       amountChange(e, idx) {
@@ -150,13 +147,6 @@
         this.cart.checkArr.length = 0;
         this.cart.checkArr.push(this.checkedArr);
         
-        // this.param = {}
-        // this.param.checkArr = this.cart.checkArr;
-        // console.log(this.param);
-
-        // const aa = await commonApi("/api/cart/checkList", "get", this.param);
-        // console.log(aa);
-
         this.$router.push({
           name : "orderInsert", 
           // state: {

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.ex01.dto.OrderDto;
-import com.example.ex01.mapper.OrderMapper;
+import com.example.ex01.service.OrderService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,17 +17,17 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/order")
 @Slf4j
 public class OrderController {
-	private final OrderMapper orderMapper;
+	private final OrderService orderService;
 	@Autowired
-	public OrderController(OrderMapper orderMapper) {
-		this.orderMapper = orderMapper;
+	public OrderController(OrderService orderService) {
+		this.orderService = orderService;
 	}
 
 
 	@PostMapping("/insert")
 	public ResponseEntity<?> OrderIsert(@RequestBody OrderDto dto) {
 //		log.info(dto.toString());
-		orderMapper.insert(dto);
+		orderService.insert(dto);
 		
 		return ResponseEntity.status(HttpStatus.CREATED).body("insert");
 	}
