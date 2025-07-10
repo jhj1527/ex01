@@ -2,24 +2,45 @@
   import { commonApi } from '@/service/common';
   import { useStore } from '@/stores/store';
   import { storeToRefs } from 'pinia';
-  import { ref } from 'vue';
+  import { computed, onMounted, ref, watch } from 'vue';
   import { RouterLink, useRouter } from 'vue-router';
   const router = useRouter();
   const result = ref("");
+  const count = ref(0);
   const store = useStore();
-  const { member } = storeToRefs(store);
+  const { member, cart } = storeToRefs(store);
 
-  const insert = () => {
-    router.push("/member/insert");
-  }
+  let param = {};
 
-  const login = () => {
-    router.push("/member/login");
-  }
+  // watch(member.value.id, (newValue, oldValue) => {
+  //   console.log(`Count changed from ${newValue} to ${oldValue}`);
+  // });
+
+  onMounted(() => {
+    
+  });
+
+  watch(() => member.value.id,
+    (newValue, oldValue) => {
+      getCartCount(newValue);
+    },
+    { deep: true },
+  );
+
+  const cnt = computed(() => {
+    return cart.value.count > 0 ? cart.value.count : "";
+  });
+
+  const getCartCount = async (newValue) => {
+    param.id = newValue;
+    const res = await commonApi("/api/cart/getCount", "get", param);
+    // console.log(res);
+    cart.value.count = res.data;
+  };
 
   const logout = async () => {
-    result.value = await commonApi("/api/member/logout", "POST");
-    console.log(result.value);
+    const res = await commonApi("/api/member/logout", "POST");
+    // console.log(res.data);
 
     localStorage.clear();
     
@@ -58,7 +79,9 @@
           <RouterLink to="/member/insert" style="color: black;"><i class="bi bi-person-add" style="font-size: 1.5rem;"></i></RouterLink>
         </li>
         <li class="ms-3">
-          <RouterLink to="/cart/list" :id="member.id" style="color: black;"><i class="bi bi-cart" style="font-size: 1.5rem;"></i></RouterLink>
+          <RouterLink to="/cart/list" :id="member.id" style="color: black; text-decoration: none;">
+            <i class="bi bi-cart" style="font-size: 1.5rem;">{{ cnt }}</i>
+          </RouterLink>
         </li>
       </ul>
     </header>

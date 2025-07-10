@@ -42,7 +42,7 @@
     },
 
     computed: {
-      ...mapState(useStore, ["member", "cart", "checkArr"]),
+      ...mapState(useStore, ["member", "cart"]),
       priceFormat() {
         return price => price > 0 ? price.toLocaleString() : 0;
       },
@@ -146,22 +146,22 @@
         res.totalPrice = this.total;
         // console.log(res);
 
-        // this.checkArr = [];
-        this.checkArr.length = 0;
-        this.checkArr.push(this.checkedArr);
+        this.cart.checkArr = [];
+        this.cart.checkArr.length = 0;
+        this.cart.checkArr.push(this.checkedArr);
         
-        this.param = {}
-        this.param.checkArr = this.checkArr;
-        console.log(this.param);
+        // this.param = {}
+        // this.param.checkArr = this.cart.checkArr;
+        // console.log(this.param);
 
         // const aa = await commonApi("/api/cart/checkList", "get", this.param);
         // console.log(aa);
 
         this.$router.push({
           name : "orderInsert", 
-          state: {
-            checkArr : this.checkedArr,
-          },
+          // state: {
+          //   checkArr : this.checkedArr,
+          // },
         });
       }
     },

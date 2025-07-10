@@ -15,7 +15,7 @@ public interface CartMapper {
 	
 	CartDto get(CartDto dto);
 	
-	int getCount(CartDto dto);
+	int getCount(String id);
 	
 	int[] totalPrice(String id);
 	

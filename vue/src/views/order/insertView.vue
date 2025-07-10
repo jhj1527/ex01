@@ -8,7 +8,7 @@
   const route = useRoute();
   const router = useRouter();
   const store = useStore();
-  const { member, checkArr } = storeToRefs(store);
+  const { member, cart } = storeToRefs(store);
 
   const result = ref({});
   const input = reactive({
@@ -19,6 +19,7 @@
     address3 : "",
     orderPrice : 0,
     charge : 0,
+    list : {}
   });
   let param = {};
 
@@ -28,7 +29,7 @@
   });
 
   const priceFormat = computed(() => 
-    (price) => price > 0 ? price.toLocaleString() : 0
+    (value) => value > 0 ? value.toLocaleString() : 0
   );
   // const priceFormat = computed(() => {
   //   return price ? price.toLocaleString() : 0;
@@ -48,13 +49,20 @@
 
   const getCheckList = async () => {
     param = {};
-    param.checkArr = checkArr.value;
+    param.checkArr = cart.value.checkArr;
     const res = await commonApi("/api/cart/checkList", "get", param);
-    result.value = res.data;
+    result.value = res.data.filter(item => delete item.attachList);
     console.log(result.value);
 
     input.orderPrice = result.value?.reduce((sum, item) => sum + (item.price * item.amount), 0);
     input.charge = input.orderPrice >= 30000 ? 0 : 3000;
+  };
+
+  const order = async () => {
+    input.list = result.value;
+    // console.log(input);
+
+    const res = await commonApi("/api/order/insert", "post", input);
   };
 
   const PostCodeApi = () => {
@@ -107,38 +115,36 @@
       <!-- Billing Details -->
       <div class="col-lg-8">
         <h4 class="fw-bold mb-4">Check out</h4>
-        <form>
-          <div class="mb-3">
-            <label class="form-label">id<span class="text-danger">*</span></label>
-            <input type="text" v-model="input.id" class="form-control" />
+        <div class="mb-3">
+          <label class="form-label">id<span class="text-danger">*</span></label>
+          <input type="text" v-model="input.id" class="form-control" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Address<span class="text-danger">*</span></label>
+          <div class="d-flex mb-2">
+            <input type="text" v-model="input.postCode" class="form-control me-2" style="max-width: 150px;" placeholder="우편번호" />
+            <button type="button" @click="PostCodeApi" class="btn btn-outline-secondary" style="min-width: 120px;">우편번호 찾기</button>
           </div>
-          <div class="mb-3">
-            <label class="form-label">Address<span class="text-danger">*</span></label>
-            <div class="d-flex mb-2">
-              <input type="text" v-model="input.postCode" class="form-control me-2" style="max-width: 150px;" placeholder="우편번호" />
-              <button type="button" @click="PostCodeApi" class="btn btn-outline-secondary" style="min-width: 120px;">우편번호 찾기</button>
-            </div>
-            <input type="text" v-model="input.address1" class="form-control mb-2" placeholder="도로명주소" />
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <input type="text" class="form-control" placeholder="상세주소" />
-              </div>
-              <div class="col-md-6">
-                <input type="email" v-model="input.address3" class="form-control" placeholder="참고항목" />
-              </div>
-            </div>
-          </div>
+          <input type="text" v-model="input.address1" class="form-control mb-2" placeholder="도로명주소" />
           <div class="row mb-3">
             <div class="col-md-6">
-              <label class="form-label">Phone<span class="text-danger">*</span></label>
-              <input type="text" class="form-control" />
+              <input type="text" v-model="input.address2" class="form-control" placeholder="상세주소" />
             </div>
             <div class="col-md-6">
-              <label class="form-label">Email<span class="text-danger">*</span></label>
-              <input type="email" class="form-control" />
+              <input type="email" v-model="input.address3" class="form-control" placeholder="참고항목" />
             </div>
           </div>
-        </form>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Phone<span class="text-danger">*</span></label>
+            <input type="text" class="form-control" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Email<span class="text-danger">*</span></label>
+            <input type="email" class="form-control" />
+          </div>
+        </div>
       </div>
       <!-- Order Summary -->
       <div class="col-lg-4">
@@ -181,7 +187,7 @@
               card
             </label>
           </div> -->
-          <button type="button" class="btn btn-success w-100 fw-bold py-2" style="font-size: 1.1rem;">
+          <button type="button" @click="order" class="btn btn-success w-100 fw-bold py-2" style="font-size: 1.1rem;">
             PLACE ORDER
           </button>
         </div>

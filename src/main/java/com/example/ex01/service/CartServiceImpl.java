@@ -46,16 +46,16 @@ public class CartServiceImpl implements CartService {
 	}
 	
 	@Override
-	public int getCount(CartDto dto) {
-		return cartMapper.getCount(dto);
+	public int getCount(String id) {
+		return cartMapper.getCount(id);
 	}
 	
 	@Transactional
 	@Override
 	public void insert(CartDto dto) throws Exception {
-		int cnt = cartMapper.getCount(dto);
+		CartDto cartDto = get(dto);
 		
-		if (cnt != 0) {
+		if (cartDto != null) {
 			throw new ApiException(ErrorCode.DUPLICATION, "카트 중복");
 		}
 		
