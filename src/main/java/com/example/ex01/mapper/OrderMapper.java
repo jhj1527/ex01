@@ -9,6 +9,8 @@ import com.example.ex01.dto.OrderDto.OrderItemDto;
 
 @Mapper
 public interface OrderMapper {
+	List<OrderDto> getList(String id);
+	
 	OrderDto get(String orderId);
 	
 	void insert(OrderDto dto);

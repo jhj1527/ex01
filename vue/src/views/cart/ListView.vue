@@ -63,7 +63,7 @@
         .reduce((sum, item) => sum + (item.price * item.amount), 0);
       },
       fee() {
-        return this.total >= 30000 || this.total === 0 ? 0 : 3000;
+        return this.total >= 30000 || this.total === 0 ? 0 : 100;
       },
     },
     methods : {

@@ -86,6 +86,12 @@ const router = createRouter({
       component: () => import('../views/order/insertView.vue'),
       // props : true,
     },
+    {
+      path: "/order/complete/:orderId",
+      name: "orderComplete",
+      component: () => import('../views/order/completeView.vue'),
+      props : true,
+    },
   ],
 });
 

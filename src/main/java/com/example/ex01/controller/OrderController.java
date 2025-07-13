@@ -3,9 +3,11 @@ package com.example.ex01.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.ex01.dto.OrderDto;
@@ -22,7 +24,18 @@ public class OrderController {
 	public OrderController(OrderService orderService) {
 		this.orderService = orderService;
 	}
-
+	
+	@GetMapping("/list")
+	public ResponseEntity<?> getOrderList(@RequestParam("id") String id) {
+		return ResponseEntity.status(HttpStatus.OK).body(orderService.getList(id));
+	}
+	
+	@GetMapping("/getOrderId")
+	public ResponseEntity<?> getOrderId() {
+		String orderId = orderService.craeteNum(6);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(orderId);
+	}
 
 	@PostMapping("/insert")
 	public ResponseEntity<?> OrderIsert(@RequestBody OrderDto dto) {

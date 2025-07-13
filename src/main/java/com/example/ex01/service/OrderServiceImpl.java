@@ -29,6 +29,11 @@ public class OrderServiceImpl implements OrderService {
 		this.orderMapper = orderMapper;
 		this.cartMapper = cartMapper;
 	}
+	
+	@Override
+	public List<OrderDto> getList(String id) {
+		return orderMapper.getList(id);
+	}
 
 	@Override
 	public OrderDto get(String orderId) {
@@ -38,7 +43,7 @@ public class OrderServiceImpl implements OrderService {
 	@Transactional
 	@Override
 	public void insert(OrderDto dto) {
-		dto.setOrderId(craeteNum(6));
+//		dto.setOrderId(craeteNum(6));
 		
 		dto.getList().stream().forEach(order -> {
 			order.setOrderId(dto.getOrderId());
@@ -61,7 +66,8 @@ public class OrderServiceImpl implements OrderService {
 		orderMapper.orderItemInsert(dto.getList());
 	}
 	
-	private String craeteNum(int range) {
+	@Override
+	public String craeteNum(int range) {
 		LocalDate today = LocalDate.now();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 		String formatDate = today.format(formatter);
@@ -78,5 +84,6 @@ public class OrderServiceImpl implements OrderService {
         log.info("orderId : " + stringBuilder.toString());
 
         return stringBuilder.toString();
-    }
+	}
+
 }

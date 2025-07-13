@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 public class OrderDto {
 	private String orderId;
 	private String id;
+	private String imp_uid; // import 결제 조회 및 취소시 필요
 	private String postCode;
 	private String address1;
 	private String address2;

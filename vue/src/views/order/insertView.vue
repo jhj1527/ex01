@@ -21,6 +21,8 @@
     charge : 0,
     phone : "",
     email : "",
+    imp_uid : "",
+    orderId : "",
     list : {}
   });
   let param = {};
@@ -42,7 +44,7 @@
   // });
 
   // const charge = computed(() => {
-  //   return subTotal >= 30000 ? 0 : 3000;
+  //   return subTotal >= 30000 ? 0 : 100;
   // });
 
   // const total = computed(() => {
@@ -57,7 +59,7 @@
     console.log(result.value);
 
     input.orderPrice = result.value?.reduce((sum, item) => sum + (item.price * item.amount), 0);
-    input.charge = input.orderPrice >= 30000 ? 0 : 3000;
+    input.charge = input.orderPrice >= 30000 ? 0 : 100;
   };
 
   const order = async () => {    
@@ -71,56 +73,50 @@
       param.id = input.id;
       res = await commonApi("/api/cart/getCount", "get", param);
       cart.value.count = res.data;
+      cart.value.checkArr = [];
+      cart.value.checkArr.length = 0;
+
+      router.push("/order/complete/" + input.orderId);
+
+    } else {
+      alert("주문 오류");
     }
   };
 
-  const importApi = () => {
+  const importApi = async () => {
+    const res = await commonApi("/api/order/getOrderId", "get");
+    console.log(res.data);
+    input.orderId = res.data;
+    input.imp_uid = "imp_938797743058";
+    order();
+
     // 포트원 고객사 식별코드
-    let ranNum = "";
-    let orderNum = "";
-    let today = new Date();
-    let year = today.getFullYear(); // 년도
-    let month = today.getMonth() + 1;  // 월
-    let date = today.getDate();  // 날짜
+    // IMP.init("imp48621712");
 
-    if (month < 10) {
-      month = "0" + month.toString();
-    }
+    // IMP.request_pay({
+    //   pg : "html5_inicis", // 실제 계약 후에는 실제 상점아이디로 변경
+    //   pay_method : "card", // 'card'만 지원됩니다.
+    //   merchant_uid: input.orderId, // 상점에서 관리하는 주문 번호
+    //   name : "test",
+    //   amount : input.orderPrice + input.charge, // 결제창에 표시될 금액. 실제 승인이 이루어지지는 않습니다. (모바일에서는 가격이 표시되지 않음)
+    //   // customer_uid : 'your-customer-unique-id', // 필수 입력.
+    //   buyer_email : input.email,
+    //   buyer_name : input.id,
+    //   buyer_tel : input.phone,
+    //   // m_redirect_url : '{모바일에서 결제 완료 후 리디렉션 될 URL}' // 예: https://www.my-service.com/payments/complete/mobile
+    // }, async function(res) {
+    //   if (res.success) {
+    //     console.log(res);
+    //     input.imp_uid = res.imp_uid;
+    //     order();
+    //     // alert('결제완료');
 
-    today = year.toString() + month.toString() + date.toString();
-
-    for (let i = 0; i < 6; i++) {
-      ranNum = ranNum + Math.floor(Math.random() * 10);
-    }
-
-    orderNum = today + "_" + ranNum;
-
-    console.log(orderNum);
-
-    IMP.init("imp48621712");
-
-    IMP.request_pay({
-      pg : "html5_inicis", // 실제 계약 후에는 실제 상점아이디로 변경
-      pay_method : 'card', // 'card'만 지원됩니다.
-      merchant_uid: orderNum, // 상점에서 관리하는 주문 번호
-      name : 'shop',
-      amount : 100, //input.orderPrice + input.charge, // 결제창에 표시될 금액. 실제 승인이 이루어지지는 않습니다. (모바일에서는 가격이 표시되지 않음)
-      // customer_uid : 'your-customer-unique-id', // 필수 입력.
-      buyer_email : input.email,
-      buyer_name : input.id,
-      buyer_tel : input.phone,
-      // m_redirect_url : '{모바일에서 결제 완료 후 리디렉션 될 URL}' // 예: https://www.my-service.com/payments/complete/mobile
-    }, function(res) {
-      if ( res.success ) {
-        console.log(res);
-        order();
-        alert('결제성공');
-
-      } else {
-        alert("결제실패");
-        console.log(res);
-      }
-    });
+    //   } else {
+    //     alert("결제실패");
+    //     console.log(res);
+    //     input.imp_uid = "";
+    //   }
+    // });
   }
 
   const PostCodeApi = () => {

@@ -1,30 +1,34 @@
 package com.example.ex01.service;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import com.fasterxml.jackson.core.JsonParser;
+import com.example.ex01.dto.OrderDto;
+import com.example.ex01.error.ErrorCode;
+import com.example.ex01.exception.ApiException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
+import com.siot.IamportRestClient.request.CancelData;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
@@ -33,45 +37,136 @@ public class PaymentServiceImpl implements PaymentService {
 	private String apiKey;
 	@Value("${imp.secret}")
 	private String secretKey;
-	private final String TOKEN_URL = "https://api.iamport.kr/users/getToken";
 	private final IamportClient iamportClient;
-	
-	@Autowired
-	public PaymentServiceImpl(IamportClient iamportClient) {
-		this.iamportClient = iamportClient;
-	}
-	
-	@Override
-	public String getToken() throws IOException, InterruptedException, ParseException {
-		Map<String, Object> map = new HashMap<>();
+	private final WebClient webClient;
 
+//	@Autowired
+	public PaymentServiceImpl(IamportClient iamportClient, WebClient webClient) {
+		this.iamportClient = iamportClient;
+		this.webClient = webClient;
+	}
+
+	@Override
+	public String getToken() throws JsonProcessingException {
+//		MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
+//		formData.add("imp_key", apiKey);
+//		formData.add("imp_secret", secretKey);
+		
+		Map<String, Object> map = new HashMap<>();
 		map.put("imp_key", apiKey);
 		map.put("imp_secret", secretKey);
 		
-		JSONParser parser = new JSONParser();
-		JSONObject object = new JSONObject();
 		ObjectMapper objectMapper = new ObjectMapper();
 		String result = objectMapper.writeValueAsString(map);
 		
-		HttpRequest request = HttpRequest.newBuilder().uri(URI.create(TOKEN_URL))
-				.header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-				.method("POST", HttpRequest.BodyPublishers.ofString(result)).build();
+		String res = webClient.post()
+				.uri("/users/getToken")
+				.contentType(MediaType.APPLICATION_JSON)
+				.bodyValue(result) // 요청 바디 설정 (JSON)
+				.retrieve()
+				.bodyToMono(String.class)
+				.block();
+//				.toEntity(String.class).block();
 		
-		HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 		
-		object = (JSONObject) parser.parse(response.body());
+		JsonNode jsonNode = objectMapper.readTree(res);
+		String token = jsonNode.get("response").get("access_token").asText();
 		
-		JSONObject res = (JSONObject) object.get("response");
-
-		log.info("token:::::::::::::::" + res.get("access_token"));
-		String token = (String) res.get("access_token");
 		return token;
 	}
 
 	@Override
 	public IamportResponse<Payment> paymentByImpUid(String imp_uid) throws IamportResponseException, IOException {
-//		IamportClient iamportClient = new IamportClient(apiKey, secretKey);
+		IamportClient iamportClient = new IamportClient(apiKey, secretKey);
 		return iamportClient.paymentByImpUid(imp_uid);
+	}
+	
+	@Override
+	public IamportResponse<Payment> cancelPaymentByImpUid(CancelData data) throws IamportResponseException, IOException {
+		return iamportClient.cancelPaymentByImpUid(data);
+	}
+
+	@Override
+	public Mono<String> paymentByImp_uid(String imp_uid) {
+		try {
+			String token = getToken();
+			
+			Mono<String> result =  webClient.get()
+					.uri("/payments/{imp_uid}", imp_uid)
+					.header("Authorization", token)
+					.retrieve()
+					.onStatus(httpStatus -> httpStatus.is4xxClientError(),
+							clientResponse -> {
+								log.error("error!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+								return Mono.error(new ApiException(ErrorCode.MEMBER_NOTFOUND, "결제 내역 미존재"));
+							})
+					.bodyToMono(String.class);
+//					.toEntity(String.class).block();
+			
+//			result.subscribe(res -> {
+//				log.info(res);
+//				return;
+//			}, e -> {
+//				log.error("error ::::::::::::::::::" + e.getMessage());
+//				Mono.error(new ApiException(ErrorCode.MEMBER_NOTFOUND, "결제 내역 미존재"));
+//			});
+			
+			return Mono.just(result.block());
+			
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+
+	@Override
+	@Transactional
+	public Mono<String> cancel(OrderDto dto) {
+		try {
+			MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
+			formData.add("imp_uid", dto.getImp_uid());
+			formData.add("amount", dto.getOrderPrice() + dto.getCharge());
+			
+			String token = getToken();
+			
+			Mono<String> result =  webClient.get()
+					.uri("/payments/{imp_uid}", dto.getImp_uid())
+					.header("Authorization", token)
+					.retrieve()
+					.onStatus(httpStatus -> httpStatus.is4xxClientError(),
+							clientResponse -> {
+								return Mono.error(new ApiException(ErrorCode.MEMBER_NOTFOUND, "결제 내역 미존재"));
+							})
+					.bodyToMono(String.class)
+					.flatMap(data -> {
+//						log.info(data);
+						return webClient.post()
+								.uri("/payments/cancel")
+								.header("Authorization", token)
+								.bodyValue(formData)
+								.retrieve()
+								.bodyToMono(String.class);
+//								.toEntity(String.class).block();
+					});
+			
+			result.subscribe(res -> {
+				log.info(res);
+				
+			}, e -> {
+				log.error("error ::::::::::::::::::" + e.getMessage());
+				Mono.error(new ApiException(ErrorCode.INTERNAL_SERVER_ERROR));
+			});
+			
+			return Mono.just(result.block());
+			
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
 	}
 
 }
