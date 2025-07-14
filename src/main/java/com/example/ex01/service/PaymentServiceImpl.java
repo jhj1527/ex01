@@ -125,9 +125,21 @@ public class PaymentServiceImpl implements PaymentService {
 	@Transactional
 	public Mono<String> cancel(OrderDto dto) {
 		try {
-			MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
-			formData.add("imp_uid", dto.getImp_uid());
-			formData.add("amount", dto.getOrderPrice() + dto.getCharge());
+//			MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+//			int amount = dto.getOrderPrice() + dto.getCharge();
+//			map.add("imp_uid", dto.getImp_uid());
+//			map.add("amount", amount);
+			
+			Map<String, Object> map = new HashMap<>();
+			map.put("imp_uid", dto.getImp_uid());
+			
+			if (dto.getOrderPrice() > 0) {
+				int amount = dto.getOrderPrice() + dto.getCharge();
+				map.put("amount", amount);
+			}
+			
+			ObjectMapper objectMapper = new ObjectMapper();
+			String formData = objectMapper.writeValueAsString(map);
 			
 			String token = getToken();
 			
@@ -144,6 +156,7 @@ public class PaymentServiceImpl implements PaymentService {
 //						log.info(data);
 						return webClient.post()
 								.uri("/payments/cancel")
+								.contentType(MediaType.APPLICATION_JSON)
 								.header("Authorization", token)
 								.bodyValue(formData)
 								.retrieve()

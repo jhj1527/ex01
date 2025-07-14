@@ -32,7 +32,12 @@ public class OrderServiceImpl implements OrderService {
 	
 	@Override
 	public List<OrderDto> getList(String id) {
-		return orderMapper.getList(id);
+		return orderMapper.getList(id); 
+	}
+	
+	@Override
+	public OrderDto getDetailList(String orderId) {
+		return orderMapper.getDetailList(orderId);
 	}
 
 	@Override
@@ -64,6 +69,18 @@ public class OrderServiceImpl implements OrderService {
 		orderMapper.insert(dto);
 		
 		orderMapper.orderItemInsert(dto.getList());
+	}
+	
+	@Transactional
+	@Override
+	public void delete(String orderId) {
+		OrderDto dto = getDetailList(orderId);
+		
+		if (dto != null) {
+			orderMapper.orderItemDelete(orderId);
+		}
+		
+		orderMapper.delete(orderId);
 	}
 	
 	@Override

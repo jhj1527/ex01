@@ -11,9 +11,15 @@ import com.example.ex01.dto.OrderDto.OrderItemDto;
 public interface OrderMapper {
 	List<OrderDto> getList(String id);
 	
+	OrderDto getDetailList(String orderId);
+	
 	OrderDto get(String orderId);
 	
 	void insert(OrderDto dto);
 
 	void orderItemInsert(List<OrderItemDto> list);
+
+	void delete(String orderId);
+	
+	void orderItemDelete(String orderId);
 }

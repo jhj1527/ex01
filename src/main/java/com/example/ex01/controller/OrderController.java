@@ -1,9 +1,13 @@
 package com.example.ex01.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,8 +30,17 @@ public class OrderController {
 	}
 	
 	@GetMapping("/list")
-	public ResponseEntity<?> getOrderList(@RequestParam("id") String id) {
-		return ResponseEntity.status(HttpStatus.OK).body(orderService.getList(id));
+	public ResponseEntity<?> getList(@RequestParam("id") String id) {
+		List<OrderDto> list = orderService.getList(id);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(list);
+	}
+	
+	@GetMapping("/detailList/{orderId}")
+	public ResponseEntity<?> getDetailList(@PathVariable("orderId") String orderId) {
+		OrderDto dto = orderService.getDetailList(orderId);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(dto);
 	}
 	
 	@GetMapping("/getOrderId")
@@ -45,5 +58,11 @@ public class OrderController {
 		return ResponseEntity.status(HttpStatus.CREATED).body("insert");
 	}
 	
+	@DeleteMapping("/delete")
+	public ResponseEntity<?> delete(@RequestParam("orderId") String orderId) {
+		orderService.delete(orderId);
+		
+		return ResponseEntity.status(HttpStatus.OK).body("delete");
+	}
 	
 }

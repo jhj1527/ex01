@@ -35,9 +35,10 @@ public class OrderDto {
 		private String orderId;
 		private Long ino;
 		private String id;
+		private String name;
 		private int amount;
 		private int price;
-//		private int discount;
-		private AttachDto dto;
+		private int discount;
+		private AttachDto attachDto;
 	}
 }

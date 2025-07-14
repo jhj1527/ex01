@@ -2,28 +2,32 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.ex01.mapper.OrderMapper">
-    
-    <resultMap id="orderMap" type="com.example.ex01.dto.OrderDto" >
+    <resultMap id="orderMap" type="com.example.ex01.dto.OrderDto">
 		<id property="orderId" column="orderId"/>
-		<result property="id" column="id" />
-		<result property="imp_uid" column="imp_uid" />
-		<result property="postCode" column="postCode" />
-		<result property="address1" column="address1" />
-		<result property="address2" column="address2" />
-		<result property="address3" column="address3" />
-		<result property="orderPrice" column="orderPrice" />
-		<result property="charge" column="charge" />
-		<result property="state" column="state" />
-		<result property="regDate" column="regDate" />
+		<result property="id" column="id"/>
+		<result property="imp_uid" column="imp_uid"/>
+		<result property="postCode" column="postCode"/>
+		<result property="address1" column="address1"/>
+		<result property="address2" column="address2"/>
+		<result property="address3" column="address3"/>
+		<result property="orderPrice" column="orderPrice"/>
+		<result property="charge" column="charge"/>
+		<result property="state" column="state"/>
+		<result property="regDate" column="regDate" javaType="java.time.LocalDate"/>
+	</resultMap>
+    
+    <resultMap id="orderDetailMap" type="com.example.ex01.dto.OrderDto" extends="orderMap">
 		<collection property="list" column="list" ofType="com.example.ex01.dto.OrderDto$OrderItemDto" notNullColumn="oino" >
 			<id property="oino" column="oino" />
 			<result property="orderId" column="orderId" />
 			<result property="ino" column="ino" />
 			<result property="id" column="id" />
+			<result property="name" column="name" />
 			<result property="amount" column="amount" />
 			<result property="price" column="price" />
-			<!-- property : dto 컬럼명과 동일 -->
-			<association property="dto" javaType="com.example.ex01.dto.AttachDto" resultMap="attachResultMap"/>
+			<result property="discount" column="discount" />
+			<!-- property : dto 클래스 컬럼명과 동일 -->
+			<association property="attachDto" column="dto" javaType="com.example.ex01.dto.AttachDto" resultMap="attachResultMap"/>
 		</collection>
 	</resultMap>
 	
@@ -32,23 +36,45 @@
 		<result property="fileName" column="filename" />
 		<result property="filePath" column="filepath" />
 	</resultMap>
-    
-    <select id="getList" resultMap="orderMap">
-    	<![CDATA[
-	    	SELECT * FROM 
-			orderitem o
-			LEFT OUTER JOIN orderdetail i
-				ON o.orderid = i.orderid
-			LEFT OUTER JOIN (
-			  	SELECT ino, MAX(filename) AS filename, filepath FROM attach
-				GROUP BY ino, filepath
-			 	) a
-				ON i.ino = a.ino
+	
+	<select id="getList" resultMap="orderMap">
+		<![CDATA[
+	    	select *
+			from orderitem 
 			where 1 = 1
-			and o.id = #{id}
-			ORDER BY o.regDate, i.oino DESC
+			and id = #{id}
+			order by regDate
+		]]>
+	</select>
+    
+    <select id="getDetailList" resultMap="orderDetailMap">
+    	<![CDATA[
+	    	select *  
+			from orderitem o
+			left outer join orderdetail d
+				on o.orderid = d.orderid
+			left outer join (
+			  	select ino, max(filename) as filename, filepath 
+			  	from attach
+				group by ino, filepath
+			 	) a
+				on d.ino = a.ino
+			left outer join item i
+				on i.ino = d.ino
+			where 1 = 1
+			and o.orderId = #{orderId}
+			order by o.regDate, d.oino DESC
 		]]>
     </select>
+    
+    <select id="get" resultMap="orderMap">
+		<![CDATA[
+	    	select *
+			from orderitem 
+			where 1 = 1
+			and orderId = #{orderId}
+		]]>
+	</select>
     
     <insert id="insert">
     	<![CDATA[
@@ -72,7 +98,22 @@
 			into orderdetail(oino, orderId, ino, id, price, amount) values
 			(#{oino} + #{index}, #{item.orderId}, #{item.ino}, #{item.id}, #{item.price}, #{item.amount})
 		</foreach>
-		
 	</insert>
+	
+	<delete id="delete">
+		<![CDATA[
+	    	delete from orderitem 
+			where 1 = 1
+			and orderId = #{orderId}
+		]]>
+	</delete>
+	
+	<delete id="orderItemDelete">
+		<![CDATA[
+	    	delete from orderdetail 
+			where 1 = 1
+			and orderId = #{orderId}
+		]]>
+	</delete>
  
 </mapper>
