@@ -19,6 +19,8 @@ public interface OrderMapper {
 
 	void orderItemInsert(List<OrderItemDto> list);
 
+	void update(OrderDto dto);
+	
 	void delete(String orderId);
 	
 	void orderItemDelete(String orderId);

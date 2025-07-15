@@ -8,7 +8,6 @@
 
   let numbers = [];
   const result = ref([]);
-  // const emit = defineEmits(["popup"]);
   const page = ref({});
   const param = ref({
     pageNum : 1,

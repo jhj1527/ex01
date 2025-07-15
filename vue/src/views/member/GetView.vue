@@ -3,7 +3,7 @@
   import { useStore } from '@/stores/store';
   import axios from 'axios';
   import { storeToRefs } from 'pinia';
-  import { reactive, ref, defineEmits, onBeforeMount } from 'vue';
+  import { reactive, ref, onBeforeMount } from 'vue';
   import { RouterLink, useRouter } from 'vue-router';
 
   const router = useRouter();

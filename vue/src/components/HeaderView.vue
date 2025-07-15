@@ -31,13 +31,6 @@
     return cart.value.count > 0 ? cart.value.count : "";
   });
 
-  // const getCartCount = async (newValue) => {
-  //   param.id = newValue;
-  //   const res = await commonApi("/api/cart/getCount", "get", param);
-  //   // console.log(res);
-  //   cart.value.count = res.data;
-  // };
-
   const logout = async () => {
     const res = await commonApi("/api/member/logout", "POST");
     // console.log(res.data);
@@ -63,8 +56,8 @@
       <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
         <li><RouterLink to="/" class="nav-link px-2 link-secondary">Home</RouterLink></li>
         <li><RouterLink to="/board/list" class="nav-link px-2 link-dark">Board</RouterLink></li>
-        <!-- <li><RouterLink to="/member/get" class="nav-link px-2 link-dark">Info</RouterLink></li> -->
-        <li><RouterLink to="/order/detail/1" class="nav-link px-2 link-dark" >insert</RouterLink></li>
+        <li><RouterLink to="/admin" class="nav-link px-2 link-dark">Info</RouterLink></li>
+        <li><RouterLink to="/order/list" class="nav-link px-2 link-dark" >insert</RouterLink></li>
         <li><RouterLink to="/item/list" class="nav-link px-2 link-dark">itemList</RouterLink></li>
       </ul>
       

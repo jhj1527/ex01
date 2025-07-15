@@ -13,7 +13,9 @@
 		<result property="orderPrice" column="orderPrice"/>
 		<result property="charge" column="charge"/>
 		<result property="state" column="state"/>
-		<result property="regDate" column="regDate" javaType="java.time.LocalDate"/>
+		<result property="phone" column="phone"/>
+		<result property="email" column="email"/>
+		<result property="regDate" column="regDate"/>
 	</resultMap>
     
     <resultMap id="orderDetailMap" type="com.example.ex01.dto.OrderDto" extends="orderMap">
@@ -27,11 +29,13 @@
 			<result property="price" column="price" />
 			<result property="discount" column="discount" />
 			<!-- property : dto 클래스 컬럼명과 동일 -->
-			<association property="attachDto" column="dto" javaType="com.example.ex01.dto.AttachDto" resultMap="attachResultMap"/>
+			<association property="attachDto" column="dto" javaType="com.example.ex01.dto.AttachDto" 
+			resultMap="attachResultMap" notNullColumn="fileName" />
 		</collection>
 	</resultMap>
 	
 	<resultMap id="attachResultMap" type="com.example.ex01.dto.AttachDto">
+		<!-- <result property="attachId" column="attachId" /> -->
 		<result property="ino" column="ino" />
 		<result property="fileName" column="filename" />
 		<result property="filePath" column="filepath" />
@@ -78,9 +82,9 @@
     
     <insert id="insert">
     	<![CDATA[
-			insert into orderitem(orderId, id, postCode, address1, address2, address3, orderPrice, charge, imp_uid)
+			insert into orderitem(orderId, id, postCode, address1, address2, address3, orderPrice, charge, imp_uid, phone, email)
 			values(#{orderId, jdbcType = VARCHAR}, #{id}, #{postCode}, #{address1}, #{address2}, #{address3},
-			#{orderPrice}, #{charge}, #{imp_uid})
+			#{orderPrice}, #{charge}, #{imp_uid}, #{phone}, #{email})
         ]]>
     </insert>
     
@@ -115,5 +119,20 @@
 			and orderId = #{orderId}
 		]]>
 	</delete>
+	
+	<update id="update">
+		<![CDATA[
+	    	update orderitem set
+	    	postCode = #{postCode},
+	    	address1 = #{address1},
+	    	address2 = #{address2},
+	    	address3 = #{address3},
+	    	phone = #{phone},
+	    	email = #{email}
+			where 1 = 1
+			and id = #{id}
+			and orderId = #{orderId}
+		]]>
+	</update>
  
 </mapper>

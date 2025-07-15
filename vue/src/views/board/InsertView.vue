@@ -2,7 +2,7 @@
   import { commonApi } from '@/service/common';
   import { useStore } from '@/stores/store';
   import { storeToRefs } from 'pinia';
-  import { reactive, ref, defineEmits, onBeforeMount } from 'vue';
+  import { reactive, ref, onBeforeMount } from 'vue';
   import { useRouter } from 'vue-router';
   
   const router = useRouter();
@@ -12,16 +12,10 @@
     id : "",
   });
   const result = ref("");
-  const emit = defineEmits(["popup"]);
   const store = useStore();
   const { member } = storeToRefs(useStore());
   const insert = async () => {
     try {
-      // if (input.title === "" && input.content === "") {
-      //   alert("error");
-      //   return;
-      // }
-      
       result.value = await commonApi("/api/board/insert", "POST", input);
       
       if (result.value.status === 200) {

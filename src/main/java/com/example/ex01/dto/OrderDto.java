@@ -1,6 +1,7 @@
 package com.example.ex01.dto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -20,10 +21,12 @@ public class OrderDto {
 	private String address1;
 	private String address2;
 	private String address3;
+	private String phone;
+	private String email;
 	private int orderPrice;
 	private int charge;
 	private int state;
-	private LocalDate regDate;
+	private LocalDateTime regDate;
 	private List<OrderItemDto> list;
 	
 	@Data

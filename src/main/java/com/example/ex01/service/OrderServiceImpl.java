@@ -73,6 +73,12 @@ public class OrderServiceImpl implements OrderService {
 	
 	@Transactional
 	@Override
+	public void update(OrderDto dto) {
+		orderMapper.update(dto);
+	}
+	
+	@Transactional
+	@Override
 	public void delete(String orderId) {
 		OrderDto dto = getDetailList(orderId);
 		
@@ -102,5 +108,4 @@ public class OrderServiceImpl implements OrderService {
 
         return stringBuilder.toString();
 	}
-
 }

@@ -1,12 +1,15 @@
 <script setup>
   import { commonApi } from '@/service/common';
   import { useStore } from '@/stores/store';
+  import dayjs from 'dayjs';
+  
   import { storeToRefs } from 'pinia';
   import { computed, onMounted, reactive, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   const router = useRouter();
   const store = useStore();
   const { member, cart } = storeToRefs(store);
+  const day = ref("");
 
   const result = ref({});
   let param = {};
@@ -14,6 +17,10 @@
   onMounted(() => {
     orderList();
   });
+
+  const dayFormat = computed(() => 
+    (value) => dayjs(value).format("YYYY.MM.DD hh:mm:ss")
+  );
 
   const priceFormat = computed(() => 
     (value) => value > 0 ? value.toLocaleString() : 0
@@ -40,19 +47,26 @@
 
   const cancel = async (item) => {
     param = {};
-    param.imp_uid = "imp_938797743058";
-    // param.orderPrice = item.orderPrice;
-    // param.charge = item.charge;
+    param.imp_uid = item.imp_uid;
+    param.orderPrice = item.orderPrice;
+    param.charge = item.charge;
 
     const res = await commonApi("/api/payment/cancel", "post", param);
 
+    console.log(res);
+
     if (res.data.response !== null) {
+      param = {};
+      param.orderId = item.orderId;
       const res = await commonApi("/api/order/delete", "delete", param);
       
       if (res.status === 200) {
         alert("cancel");
         result.value = result.value.filter(i => i.orderId !== item.orderId);
       }
+
+    } else {
+      alert("api 오류");
     }
   };
 </script>
@@ -121,14 +135,14 @@
                 <td>
                   <RouterLink :to="`/order/detail/${item.orderId}`" style="color: black; text-decoration: none;" >{{ item.orderId }}</RouterLink>
                 </td>
-                <td>{{ item.regDate }}</td>
+                <td> {{ dayFormat(item.regDate) }}</td>
                 <td>{{ item.id }}</td>
                 <td>
                   <span class="badge bg-success bg-opacity-25 text-success fw-bold px-3 py-2" style="font-size: 1em;">
                     {{ item.state }}
                   </span>
                 </td>
-                <td class="fw-bold">{{ priceFormat(item.orderPrice) }}</td>
+                <td class="fw-bold">{{ priceFormat(item.orderPrice + item.charge) }}</td>
                 <td>
                     <button @click="cancel(item)" class="btn btn-outline-primary fw-bold px-3 py-2" style="font-size: 1em;">주문취소</button>
                 </td>

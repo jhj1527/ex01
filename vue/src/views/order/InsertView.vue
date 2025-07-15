@@ -76,6 +76,8 @@
       cart.value.checkArr = [];
       cart.value.checkArr.length = 0;
 
+      alert('결제 완료');
+
       router.push("/order/complete/" + input.orderId);
 
     } else {
@@ -86,11 +88,11 @@
   const importApi = async () => {
     const res = await commonApi("/api/order/getOrderId", "get");
     console.log(res.data);
+    input.imp_uid = "123456789";
     input.orderId = res.data;
-    input.imp_uid = "imp_938797743058";
     order();
 
-    // 포트원 고객사 식별코드
+    // // 포트원 고객사 식별코드
     // IMP.init("imp48621712");
 
     // IMP.request_pay({
@@ -109,56 +111,17 @@
     //     console.log(res);
     //     input.imp_uid = res.imp_uid;
     //     order();
-    //     // alert('결제완료');
 
     //   } else {
-    //     alert("결제실패");
+    //     alert("결제 오류");
     //     console.log(res);
     //     input.imp_uid = "";
     //   }
     // });
   }
 
-  const PostCodeApi = () => {
-    new window.daum.Postcode({
-      oncomplete: (data) => {
-        if (input.address3 !== "") {
-          input.address3 = "";
-        }
-
-        if (data.userSelectedType === "R") {
-          // 사용자가 도로명 주소를 선택했을 경우
-          input.address1 = data.roadAddress;
-        } else {
-          // 사용자가 지번 주소를 선택했을 경우(J)
-          input.address1 = data.jibunAddress;
-        }
-
-        // 사용자가 선택한 주소가 도로명 타입일때 참고항목을 조합한다.
-        if (data.userSelectedType === "R") {
-          // 법정동명이 있을 경우 추가한다. (법정리는 제외)
-          // 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
-          if (data.bname !== "" && /[동|로|가]$/g.test(data.bname)) {
-            input.address3 += data.bname;
-          }
-
-          // 건물명이 있고, 공동주택일 경우 추가한다.
-          if (data.buildingName !== "" && data.apartment === "Y") {
-            input.address3 += input.address3 !== "" ? `, ${data.buildingName}` : data.buildingName;
-          }
-
-          // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
-          if (input.address3 !== "") {
-            input.address3 = `(${input.address3})`;
-          }
-
-        } else {
-          input.address3 = "";
-        }
-        // 우편번호를 입력한다.
-        input.postCode = data.zonecode;
-      },
-    }).open();
+  const PostCodeApi = async () => {
+    store.PostCodeApi(input);
   };
   
 </script>

@@ -13,7 +13,9 @@ public interface OrderService {
 	
 	void insert(OrderDto dto);
 
-	String craeteNum(int range);
-
 	void delete(String orderId);
+
+	void update(OrderDto dto);
+	
+	String craeteNum(int range);
 }

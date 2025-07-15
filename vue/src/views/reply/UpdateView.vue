@@ -1,47 +1,47 @@
 <script>
-import { commonApi } from '@/service/common';
+  import { commonApi } from '@/service/common';
 
-export default {
-  name: 'UpdateView',
-  data() {
-    return {
-      input: {},
-      newReply: '',
-      result: {},
-    }
-  },
-  methods: {
-    async updateReply() {
-      try {
-        this.result = await commonApi("/api/reply/update", "patch", this.reply);
-        
-        if (this.result.data === true) {
-          alert("update");
-          this.$emit("update");
-
-        } else {
-          alert("error");
-        }
-        
-      } catch (e) {
-        console.error(e);
+  export default {
+    name: 'UpdateView',
+    data() {
+      return {
+        input: {},
+        newReply: '',
+        result: {},
       }
     },
-  },
-  props: {
-    reply: {
-      type: Object,
-      default: () => ({}),
+    methods: {
+      async updateReply() {
+        try {
+          this.result = await commonApi("/api/reply/update", "patch", this.reply);
+          
+          if (this.result.data === true) {
+            alert("update");
+            this.$emit("update");
+
+          } else {
+            alert("error");
+          }
+          
+        } catch (e) {
+          console.error(e);
+        }
+      },
     },
-    isModal: {
-      type: Boolean,
-      default: false,
-    }
-  },
-  computed: {
-    
-  }, 
-}
+    props: {
+      reply: {
+        type: Object,
+        default: () => ({}),
+      },
+      isModal: {
+        type: Boolean,
+        default: false,
+      }
+    },
+    computed: {
+      
+    }, 
+  }
 </script>
 
 <template>

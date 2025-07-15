@@ -3,7 +3,7 @@
   import { useStore } from '@/stores/store';
   import axios from 'axios';
   import { storeToRefs } from 'pinia';
-  import { reactive, ref, defineEmits } from 'vue';
+  import { reactive, ref } from 'vue';
   import { RouterLink, useRouter } from 'vue-router';
 
   const router = useRouter();
@@ -15,7 +15,6 @@
   });
   const modalCheck = ref(false);
   const result = ref("");
-  const emit = defineEmits(["popup"]);
   
   const login = async () => {
     try {

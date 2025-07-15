@@ -50,8 +50,8 @@
           </div>
           <!-- Buttons -->
           <div class="d-flex justify-content-center gap-3">
-            <RouterLink to="/item/list" style="color: black; text-decoration: none;">
-              <button type="button" class="btn btn-outline-secondary px-4">주문상세 보기</button>
+            <RouterLink to="/order/list" style="color: black; text-decoration: none;">
+              <button type="button" class="btn btn-outline-secondary px-4">주문내역 보기</button>
             </RouterLink>
             <RouterLink to="/item/list" style="color: black; text-decoration: none;">
               <button type="button" class="btn btn-danger px-4">계속 쇼핑하기</button>
