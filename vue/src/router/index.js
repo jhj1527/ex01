@@ -83,8 +83,38 @@ const router = createRouter({
     {
       path: "/order/insert",
       name: "orderInsert",
-      component: () => import('../views/order/insertView.vue'),
+      component: () => import('../views/order/InsertView.vue'),
       // props : true,
+    },
+    {
+      path: "/order/complete/:orderId",
+      name: "orderComplete",
+      component: () => import('../views/order/CompleteView.vue'),
+      props : true,
+    },
+    {
+      path: "/order/list",
+      name: "orderList",
+      component: () => import('../views/order/OrderList.vue'),
+      props : true,
+    },
+    {
+      path: "/order/detail/:orderId",
+      name: "orderDetail",
+      component: () => import('../views/order/OrderDetail.vue'),
+      props : true,
+    },
+    {
+      path: "/order/update",
+      name: "orderUpdate",
+      component: () => import('../views/order/UpdateView.vue'),
+      props : true,
+    },
+    {
+      path: "/admin",
+      name: "admin",
+      component: () => import('../views/admin/AdminView.vue'),
+      props : true,
     },
   ],
 });

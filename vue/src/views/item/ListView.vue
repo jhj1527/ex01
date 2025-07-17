@@ -1,7 +1,7 @@
 <script>
   import { commonApi } from '@/service/common';
   import { useStore } from '@/stores/store';
-  import { mapState } from 'pinia';
+  import { mapActions, mapState, mapStores } from 'pinia';
 
   export default {
     name: 'ListView',
@@ -22,13 +22,16 @@
           amount: "",
           price: "",
         },
+        store : useStore(),
       };
     },
     mounted() {
       this.getList();
     },
     computed: {
-      ...mapState(useStore, ['member']),
+      ...mapState(useStore, ["member", "cart"]),
+      ...mapActions(useStore, ["getCartCount"]),
+      // ...mapStores(useStore),
       priceFormat() {
         return price => price ? price.toLocaleString() : '';
       },
@@ -96,20 +99,26 @@
         this.$router.push("/item/insert");
       },
       async addCart(item, i) {
-        this.input.ino = item.ino;
-        this.input.id = this.member.id;
-        this.input.price = this.disCountPrice(i);
-        this.input.amount = 1;
+        try {
+          this.input.ino = item.ino;
+          this.input.id = this.member.id;
+          this.input.price = this.disCountPrice(i);
+          this.input.amount = 1;
 
-        console.log(this.input);
+          console.log(this.input);
 
-        const res = await commonApi("/api/cart/insert", "post", this.input);
+          const res = await commonApi("/api/cart/insert", "post", this.input);
 
-        console.log(res);
+          console.log(res);
 
-        if (res.status === 201 || res.status === 200) {
+          if (res.status === 201 || res.status === 200) {
             alert("insert");
-        } 
+            
+            this.store.getCartCount(this.input.id);
+          } 
+        } catch (e) {
+          console.log(e);
+        }
       },
     },
   };

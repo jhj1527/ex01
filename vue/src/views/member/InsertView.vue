@@ -7,7 +7,7 @@
     password : "",
   });
   const result = ref("");
-  const emit = defineEmits(["popup"]);
+  // const emit = defineEmits(["popup"]);
   
   const insert = async () => {
     try {
@@ -19,7 +19,10 @@
       result.value = await commonApi("/api/member/insert", "POST", input);
 
       if (result.value.status === 200) {
-        emit("popup", result.value, "insert");
+        // emit("popup", result.value, "insert");
+        alert("insert");
+        router.push("/member/login");
+
 
       } else {
         alert(result.value.data.message);

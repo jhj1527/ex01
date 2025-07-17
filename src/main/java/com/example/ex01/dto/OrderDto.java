@@ -1,6 +1,7 @@
 package com.example.ex01.dto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -15,14 +16,17 @@ import lombok.NoArgsConstructor;
 public class OrderDto {
 	private String orderId;
 	private String id;
+	private String imp_uid; // import 결제 조회 및 취소시 필요
 	private String postCode;
 	private String address1;
 	private String address2;
 	private String address3;
+	private String phone;
+	private String email;
 	private int orderPrice;
 	private int charge;
 	private int state;
-	private LocalDate regDate;
+	private LocalDateTime regDate;
 	private List<OrderItemDto> list;
 	
 	@Data
@@ -34,9 +38,10 @@ public class OrderDto {
 		private String orderId;
 		private Long ino;
 		private String id;
+		private String name;
 		private int amount;
 		private int price;
-//		private int discount;
-		private AttachDto dto;
+		private int discount;
+		private AttachDto attachDto;
 	}
 }

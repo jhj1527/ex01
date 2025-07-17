@@ -65,6 +65,13 @@ public class CartController {
 		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
 	
+	@GetMapping("/getCount")
+	public ResponseEntity<?> getCount(@RequestParam("id") String id) {
+		int count = cartService.getCount(id);
+		
+		return new ResponseEntity<>(count, HttpStatus.OK);
+	}
+	
 	@PostMapping("/insert")
 	public ResponseEntity<?> insert(@RequestBody CartDto dto, HttpServletResponse response) throws URISyntaxException {
 		try {

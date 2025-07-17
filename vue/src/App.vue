@@ -24,28 +24,29 @@
      console.log(curVal, prevVal); 
   });
 
-  const popup = (result, state) => {
-    console.log(result);
+  // const popup = (result, state) => {
+  //   console.log(result);
     
-    if (result.status === 200) {
-      window.alert(state);
+  //   if (result.status === 200) {
+  //     window.alert(state);
       
-      // if (result.request.responseURL.includes("board")) {
-      //   router.push("/board/list");
-      // }
+  //     // if (result.request.responseURL.includes("board")) {
+  //     //   router.push("/board/list");
+  //     // }
 
-      if (result.request.responseURL.includes("/member/insert")) {
-        router.push("/member/login");
-      }
-    }
-  };
+  //     if (result.request.responseURL.includes("/member/insert")) {
+  //       router.push("/member/login");
+  //     }
+  //   }
+  // };
 
 
 </script>
 
 <template>
   <DefaultLayout>
-    <RouterView @popup="popup"/>
+    <!-- <RouterView @popup="popup"/> -->
+     <RouterView />
   </DefaultLayout>
 </template>
 

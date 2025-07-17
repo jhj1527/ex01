@@ -34,32 +34,32 @@
         }
       },
       async onFileChange(e) {
-        this.result = [];
-        const formData = new FormData();
-
-        if (e.target.files.length === 0) {
-          return;
-        }
-        
-        for (let i = 0; i < e.target.files.length; i++) {
-          formData.append('file', e.target.files[i]);
-        }
-
-        formData.append("folderPath" , this.input.category);
-
-        // for (let value of formData.values()) {
-        //   console.log(value);
-        // }
-
-        // for (let key of formData.keys()) {
-        //   console.log(formData.get(key));
-        // }
-
         try {
           const res = await commonApi("/api/file/upload", "POST", formData);
+          this.result = [];
+          const formData = new FormData();
+  
+          if (e.target.files.length === 0) {
+            return;
+          }
+          
+          for (let i = 0; i < e.target.files.length; i++) {
+            formData.append('file', e.target.files[i]);
+          }
+  
+          formData.append("folderPath" , this.input.category);
+  
+          // for (let value of formData.values()) {
+          //   console.log(value);
+          // }
+  
+          // for (let key of formData.keys()) {
+          //   console.log(formData.get(key));
+          // }
           this.result = res.data;
 
           // console.log(this.result);
+          
         } catch (e) {
           console.log("error : ", e);
         }

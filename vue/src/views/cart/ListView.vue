@@ -9,16 +9,11 @@
       return {
         result: [],
         checkedArr: [],
-        input: {
-          id: "",
-          cno: "",
-          ino: "",
-          price: 0,
-        },
         param: {},
         totalPrice: 0,
         charge : 0,
         mainSrc : [],
+        store : useStore(),
       };
     },
     // props: {
@@ -42,7 +37,7 @@
     },
 
     computed: {
-      ...mapState(useStore, ["member", "cart", "checkArr"]),
+      ...mapState(useStore, ["member", "cart"]),
       priceFormat() {
         return price => price > 0 ? price.toLocaleString() : 0;
       },
@@ -68,7 +63,7 @@
         .reduce((sum, item) => sum + (item.price * item.amount), 0);
       },
       fee() {
-        return this.total >= 30000 || this.total === 0 ? 0 : 3000;
+        return this.total >= 30000 || this.total === 0 ? 0 : 100;
       },
     },
     methods : {
@@ -106,20 +101,27 @@
         }
       },
       async removeItem(item, idx) {
-        this.param = {};
-        this.param.cno = item.cno;
-        
-        const res = await commonApi("/api/cart/delete", 'delete', this.param);
-        if (res.status === 200) {
-          alert("delete");
+        try {
+          this.param = {};
+          this.param.cno = item.cno;
           
-          const index = this.checkedArr.findIndex(i => i === item.cno);
-          if (index > -1) {
-            this.checkedArr.splice(index, 1);
-          }
+          const res = await commonApi("/api/cart/delete", 'delete', this.param);
+          if (res.status === 200) {
+            alert("delete");
+            
+            const index = this.checkedArr.findIndex(i => i === item.cno);
+            if (index > -1) {
+              this.checkedArr.splice(index, 1);
+            }
+    
+            this.result.splice(idx, 1);
+            // this.result = this.result.filter(c => c.cno !== item.cno);
   
-          this.result.splice(idx, 1);
-          // this.result = this.result.filter(c => c.cno !== item.cno);
+            this.store.getCartCount(this.member.id);
+          }
+          
+        } catch (e) {
+          console.log(e);
         }
       },
       amountChange(e, idx) {
@@ -132,9 +134,14 @@
         this.result[idx].amount = e.target.value;
       },
       async allUpdate() {
-        const res = await commonApi("/api/cart/updateList", "patch", this.result);
-
-        console.log(res);
+        try {
+          const res = await commonApi("/api/cart/updateList", "patch", this.result);
+  
+          console.log(res);
+          
+        } catch (e) {
+          console.log(e);
+        }
       },
       async checkOut() {
         // 얕은 복사(스프레드 연산자)시 복사본 수정시 원본도 수정 되므로 깊은복사 
@@ -146,22 +153,15 @@
         res.totalPrice = this.total;
         // console.log(res);
 
-        // this.checkArr = [];
-        this.checkArr.length = 0;
-        this.checkArr.push(this.checkedArr);
+        this.cart.checkArr = [];
+        this.cart.checkArr.length = 0;
+        this.cart.checkArr.push(this.checkedArr);
         
-        this.param = {}
-        this.param.checkArr = this.checkArr;
-        console.log(this.param);
-
-        // const aa = await commonApi("/api/cart/checkList", "get", this.param);
-        // console.log(aa);
-
         this.$router.push({
           name : "orderInsert", 
-          state: {
-            checkArr : this.checkedArr,
-          },
+          // state: {
+          //   checkArr : this.checkedArr,
+          // },
         });
       }
     },

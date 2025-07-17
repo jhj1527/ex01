@@ -18,13 +18,14 @@
           amount: 1,
           price: "",
         },
+        store : useStore(),
       };
     },
     mounted() {
       this.get(this.ino);
     },
     computed: {
-      ...mapState(useStore, ["member"]),
+      ...mapState(useStore, ["member", "cart"]),
       priceFormat() {
         return price => price ? price.toLocaleString() : '';
       },
@@ -110,6 +111,8 @@
 
         if (res.status === 201 || res.status === 200) {
             alert("insert");
+
+            this.store.getCartCount(this.input.id);
         }
       },
       imageChange(e, i) {

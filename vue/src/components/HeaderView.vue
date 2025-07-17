@@ -2,24 +2,38 @@
   import { commonApi } from '@/service/common';
   import { useStore } from '@/stores/store';
   import { storeToRefs } from 'pinia';
-  import { ref } from 'vue';
+  import { computed, onMounted, ref, watch } from 'vue';
   import { RouterLink, useRouter } from 'vue-router';
   const router = useRouter();
   const result = ref("");
+  const count = ref(0);
   const store = useStore();
-  const { member } = storeToRefs(store);
+  const { member, cart } = storeToRefs(store);
 
-  const insert = () => {
-    router.push("/member/insert");
-  }
+  let param = {};
 
-  const login = () => {
-    router.push("/member/login");
-  }
+  // watch(member.value.id, (newValue, oldValue) => {
+  //   console.log(`Count changed from ${newValue} to ${oldValue}`);
+  // });
+
+  onMounted(() => {
+    
+  });
+
+  watch(() => member.value.id,
+    (newValue, oldValue) => {
+      store.getCartCount(newValue);
+    },
+    { deep: true },
+  );
+
+  const cnt = computed(() => {
+    return cart.value.count > 0 ? cart.value.count : "";
+  });
 
   const logout = async () => {
-    result.value = await commonApi("/api/member/logout", "POST");
-    console.log(result.value);
+    const res = await commonApi("/api/member/logout", "POST");
+    // console.log(res.data);
 
     localStorage.clear();
     
@@ -42,8 +56,8 @@
       <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
         <li><RouterLink to="/" class="nav-link px-2 link-secondary">Home</RouterLink></li>
         <li><RouterLink to="/board/list" class="nav-link px-2 link-dark">Board</RouterLink></li>
-        <li><RouterLink to="/member/get" class="nav-link px-2 link-dark">Info</RouterLink></li>
-        <li><RouterLink to="/order/insert" class="nav-link px-2 link-dark" >insert</RouterLink></li>
+        <li><RouterLink to="/admin" class="nav-link px-2 link-dark">Info</RouterLink></li>
+        <li><RouterLink to="/order/list" class="nav-link px-2 link-dark" >insert</RouterLink></li>
         <li><RouterLink to="/item/list" class="nav-link px-2 link-dark">itemList</RouterLink></li>
       </ul>
       
@@ -58,7 +72,9 @@
           <RouterLink to="/member/insert" style="color: black;"><i class="bi bi-person-add" style="font-size: 1.5rem;"></i></RouterLink>
         </li>
         <li class="ms-3">
-          <RouterLink to="/cart/list" :id="member.id" style="color: black;"><i class="bi bi-cart" style="font-size: 1.5rem;"></i></RouterLink>
+          <RouterLink to="/cart/list" :id="member.id" style="color: black; text-decoration: none;">
+            <i class="bi bi-cart" style="font-size: 1.5rem;">{{ cnt }}</i>
+          </RouterLink>
         </li>
       </ul>
     </header>
