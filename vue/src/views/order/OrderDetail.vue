@@ -44,54 +44,64 @@
   );
 
   const getDetail = async () => {
-    const res = await commonApi(`/api/order/detailList/${props.orderId}`, "get");
-    result.value = res.data;
+    try {
+      const res = await commonApi(`/api/order/detailList/${props.orderId}`, "get");
+      result.value = res.data;
+  
+      // if (result.value.state === 1) {
+      //   result.value.state = "배송준비";
+  
+      // } else if (result.value.state === 2) {
+      //   result.value.state = "배송중";
+  
+      // } else if (result.value.state === 3) {
+      //   result.value.state = "배송완료";
+      // }
+  
+      // console.log(result.value);
+  
+      total.totalRealPrice = result.value.list.reduce((sum, item) => {
+        if (item.discount > 0) {
+          sum += item.price * 100 / (100 - item.discount) * item.amount;
+  
+        } else {
+          sum += (item.price * item.amount);
+        }
+  
+        return sum;
+      }, 0);
+  
+      total.totalDiscountPrice = total.totalRealPrice - result.value.orderPrice;
+      total.point = result.value.orderPrice * 0.1;
+  
+      result.value.list.forEach((item, i) => {
+        if (item.attachDto !== null) {
+          getImage(item.attachDto, i);
+        }
+      });
 
-    // if (result.value.state === 1) {
-    //   result.value.state = "배송준비";
-
-    // } else if (result.value.state === 2) {
-    //   result.value.state = "배송중";
-
-    // } else if (result.value.state === 3) {
-    //   result.value.state = "배송완료";
-    // }
-
-    // console.log(result.value);
-
-    total.totalRealPrice = result.value.list.reduce((sum, item) => {
-      if (item.discount > 0) {
-        sum += item.price * 100 / (100 - item.discount) * item.amount;
-
-      } else {
-        sum += (item.price * item.amount);
-      }
-
-      return sum;
-    }, 0);
-
-    total.totalDiscountPrice = total.totalRealPrice - result.value.orderPrice;
-    total.point = result.value.orderPrice * 0.1;
-
-    result.value.list.forEach((item, i) => {
-      if (item.attachDto !== null) {
-        getImage(item.attachDto, i);
-      }
-    });
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const getImage = async (item, i) => {
-    param = {};
-    param.filePath = item.filePath;
-    param.fileName = item.fileName;
-
-    const res = await commonApi("/api/file/getFile", "get", param);
-    // console.log(res.data);
-    
-    const url = URL.createObjectURL(res.data); // url 생성
-    mainSrc.value.push(url);
-
-    itemRefs.value[i].src = url;
+    try {
+      param = {};
+      param.filePath = item.filePath;
+      param.fileName = item.fileName;
+  
+      const res = await commonApi("/api/file/getFile", "get", param);
+      // console.log(res.data);
+      
+      const url = URL.createObjectURL(res.data); // url 생성
+      mainSrc.value.push(url);
+  
+      itemRefs.value[i].src = url;
+      
+    } catch (e) { 
+      console.log(e);
+    }
   };
 
   const setItemRef = async (el, idx) => {

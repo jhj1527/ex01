@@ -99,22 +99,26 @@
         this.$router.push("/item/insert");
       },
       async addCart(item, i) {
-        this.input.ino = item.ino;
-        this.input.id = this.member.id;
-        this.input.price = this.disCountPrice(i);
-        this.input.amount = 1;
+        try {
+          this.input.ino = item.ino;
+          this.input.id = this.member.id;
+          this.input.price = this.disCountPrice(i);
+          this.input.amount = 1;
 
-        console.log(this.input);
+          console.log(this.input);
 
-        const res = await commonApi("/api/cart/insert", "post", this.input);
+          const res = await commonApi("/api/cart/insert", "post", this.input);
 
-        console.log(res);
+          console.log(res);
 
-        if (res.status === 201 || res.status === 200) {
-          alert("insert");
-          
-          this.store.getCartCount(this.input.id);
-        } 
+          if (res.status === 201 || res.status === 200) {
+            alert("insert");
+            
+            this.store.getCartCount(this.input.id);
+          } 
+        } catch (e) {
+          console.log(e);
+        }
       },
     },
   };

@@ -101,22 +101,27 @@
         }
       },
       async removeItem(item, idx) {
-        this.param = {};
-        this.param.cno = item.cno;
-        
-        const res = await commonApi("/api/cart/delete", 'delete', this.param);
-        if (res.status === 200) {
-          alert("delete");
+        try {
+          this.param = {};
+          this.param.cno = item.cno;
           
-          const index = this.checkedArr.findIndex(i => i === item.cno);
-          if (index > -1) {
-            this.checkedArr.splice(index, 1);
-          }
+          const res = await commonApi("/api/cart/delete", 'delete', this.param);
+          if (res.status === 200) {
+            alert("delete");
+            
+            const index = this.checkedArr.findIndex(i => i === item.cno);
+            if (index > -1) {
+              this.checkedArr.splice(index, 1);
+            }
+    
+            this.result.splice(idx, 1);
+            // this.result = this.result.filter(c => c.cno !== item.cno);
   
-          this.result.splice(idx, 1);
-          // this.result = this.result.filter(c => c.cno !== item.cno);
-
-          this.store.getCartCount(this.member.id);
+            this.store.getCartCount(this.member.id);
+          }
+          
+        } catch (e) {
+          console.log(e);
         }
       },
       amountChange(e, idx) {
@@ -129,9 +134,14 @@
         this.result[idx].amount = e.target.value;
       },
       async allUpdate() {
-        const res = await commonApi("/api/cart/updateList", "patch", this.result);
-
-        console.log(res);
+        try {
+          const res = await commonApi("/api/cart/updateList", "patch", this.result);
+  
+          console.log(res);
+          
+        } catch (e) {
+          console.log(e);
+        }
       },
       async checkOut() {
         // 얕은 복사(스프레드 연산자)시 복사본 수정시 원본도 수정 되므로 깊은복사 

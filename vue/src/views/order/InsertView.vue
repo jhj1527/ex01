@@ -52,72 +52,87 @@
   // });
 
   const getCheckList = async () => {
-    param = {};
-    param.checkArr = cart.value.checkArr;
-    const res = await commonApi("/api/cart/checkList", "get", param);
-    result.value = res.data.filter(item => delete item.attachList);
-    console.log(result.value);
-
-    input.orderPrice = result.value?.reduce((sum, item) => sum + (item.price * item.amount), 0);
-    input.charge = input.orderPrice >= 30000 ? 0 : 100;
-  };
-
-  const order = async () => {    
-    input.list = result.value;
-    let res = await commonApi("/api/order/insert", "post", input);
-
-    if (res.status === 200 || res.status === 201) {
-      console.log(res.data);
-
+    try {
       param = {};
-      param.id = input.id;
-      res = await commonApi("/api/cart/getCount", "get", param);
-      cart.value.count = res.data;
-      cart.value.checkArr = [];
-      cart.value.checkArr.length = 0;
+      param.checkArr = cart.value.checkArr;
+      const res = await commonApi("/api/cart/checkList", "get", param);
+      result.value = res.data.filter(item => delete item.attachList);
+      console.log(result.value);
+  
+      input.orderPrice = result.value?.reduce((sum, item) => sum + (item.price * item.amount), 0);
+      input.charge = input.orderPrice >= 30000 ? 0 : 100;
 
-      alert('결제 완료');
-
-      router.push("/order/complete/" + input.orderId);
-
-    } else {
-      alert("주문 오류");
+    } catch (e) {
+      console.log(e);
     }
   };
 
+  const order = async () => {    
+    try {
+      input.list = result.value;
+      let res = await commonApi("/api/order/insert", "post", input);
+  
+      if (res.status === 200 || res.status === 201) {
+        console.log(res.data);
+  
+        param = {};
+        param.id = input.id;
+        res = await commonApi("/api/cart/getCount", "get", param);
+        cart.value.count = res.data;
+        cart.value.checkArr = [];
+        cart.value.checkArr.length = 0;
+  
+        alert('결제 완료');
+  
+        router.push("/order/complete/" + input.orderId);
+  
+      } else {
+        alert("주문 오류");
+      }
+
+    } catch (e) {
+      console.log(e);
+    } 
+  };
+
   const importApi = async () => {
-    const res = await commonApi("/api/order/getOrderId", "get");
-    console.log(res.data);
-    input.imp_uid = "123456789";
-    input.orderId = res.data;
-    order();
-
-    // // 포트원 고객사 식별코드
-    // IMP.init("imp48621712");
-
-    // IMP.request_pay({
-    //   pg : "html5_inicis", // 실제 계약 후에는 실제 상점아이디로 변경
-    //   pay_method : "card", // 'card'만 지원됩니다.
-    //   merchant_uid: input.orderId, // 상점에서 관리하는 주문 번호
-    //   name : "test",
-    //   amount : input.orderPrice + input.charge, // 결제창에 표시될 금액. 실제 승인이 이루어지지는 않습니다. (모바일에서는 가격이 표시되지 않음)
-    //   // customer_uid : 'your-customer-unique-id', // 필수 입력.
-    //   buyer_email : input.email,
-    //   buyer_name : input.id,
-    //   buyer_tel : input.phone,
-    //   // m_redirect_url : '{모바일에서 결제 완료 후 리디렉션 될 URL}' // 예: https://www.my-service.com/payments/complete/mobile
-    // }, async function(res) {
-    //   if (res.success) {
-    //     console.log(res);
-    //     input.imp_uid = res.imp_uid;
-    //     order();
-
-    //   } else {
-    //     alert("결제 오류");
-    //     console.log(res);
-    //     input.imp_uid = "";
-    //   }
-    // });
+    try {
+      const res = await commonApi("/api/order/getOrderId", "get");
+      console.log(res.data);
+      input.imp_uid = "123456789";
+      input.orderId = res.data;
+      order();
+  
+      // // 포트원 고객사 식별코드
+      // IMP.init("imp48621712");
+  
+      // IMP.request_pay({
+      //   pg : "html5_inicis", // 실제 계약 후에는 실제 상점아이디로 변경
+      //   pay_method : "card", // 'card'만 지원됩니다.
+      //   merchant_uid: input.orderId, // 상점에서 관리하는 주문 번호
+      //   name : "test",
+      //   amount : input.orderPrice + input.charge, // 결제창에 표시될 금액. 실제 승인이 이루어지지는 않습니다. (모바일에서는 가격이 표시되지 않음)
+      //   // customer_uid : 'your-customer-unique-id', // 필수 입력.
+      //   buyer_email : input.email,
+      //   buyer_name : input.id,
+      //   buyer_tel : input.phone,
+      //   // m_redirect_url : '{모바일에서 결제 완료 후 리디렉션 될 URL}' // 예: https://www.my-service.com/payments/complete/mobile
+      // }, async function(res) {
+      //   if (res.success) {
+      //     console.log(res);
+      //     input.imp_uid = res.imp_uid;
+      //     order();
+  
+      //   } else {
+      //     alert("결제 오류");
+      //     console.log(res);
+      //     input.imp_uid = "";
+      //   }
+      // });
+      
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   const PostCodeApi = async () => {

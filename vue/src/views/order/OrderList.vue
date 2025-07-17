@@ -46,27 +46,31 @@
   };
 
   const cancel = async (item) => {
-    param = {};
-    param.imp_uid = item.imp_uid;
-    param.orderPrice = item.orderPrice;
-    param.charge = item.charge;
-
-    const res = await commonApi("/api/payment/cancel", "post", param);
-
-    console.log(res);
-
-    if (res.data.response !== null) {
+    try {
       param = {};
-      param.orderId = item.orderId;
-      const res = await commonApi("/api/order/delete", "delete", param);
-      
-      if (res.status === 200) {
-        alert("cancel");
-        result.value = result.value.filter(i => i.orderId !== item.orderId);
+      param.imp_uid = item.imp_uid;
+      param.orderPrice = item.orderPrice;
+      param.charge = item.charge;
+      const res = await commonApi("/api/payment/cancel", "post", param);
+  
+      console.log(res);
+  
+      if (res.data.response !== null) {
+        param = {};
+        param.orderId = item.orderId;
+        const res = await commonApi("/api/order/delete", "delete", param);
+        
+        if (res.status === 200) {
+          alert("cancel");
+          result.value = result.value.filter(i => i.orderId !== item.orderId);
+        }
+  
+      } else {
+        alert("이미 취소된 내역");
       }
-
-    } else {
-      alert("api 오류");
+      
+    } catch (e) {
+      console.error(e);
     }
   };
 </script>

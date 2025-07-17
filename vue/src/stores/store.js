@@ -20,10 +20,15 @@ export const useStore = defineStore('store', () => {
   });
 
   const getCartCount = async (id) => {
-    let param = {}
-    param.id = id;
-    const res = await commonApi("/api/cart/getCount", "get", param);
-    cart.value.count = res.data;
+    try {
+      let param = {}
+      param.id = id;
+      const res = await commonApi("/api/cart/getCount", "get", param);
+      cart.value.count = res.data;
+       
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   // 오늘 시간대별 데이터 계산
